@@ -1,175 +1,216 @@
-
+//#######################################################################################################
+// INCLUDES SECTION  ####################################################################################
+//#######################################################################################################
 #include <PIDController.h>
 #include <Voltimetro.h>
 #include <Motors.h>
+#include "I2Cdev.h"
+#include "MPU6050_6Axis_MotionApps20.h"
 
-#include "Giro.h"
+#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+#include "Wire.h"
+#endif
 
+#include "Defines.h"
 
-// MACRO DEFINITIONS #########################################################################
-
-// Motor A pins
-#define PWM_A 6
-#define INA_1 8
-#define INA_2 7
-
-// Motor B pins
-#define PWM_B 12
-#define INB_1 10
-#define INB_2 11
-
-// Voltimeter pins
-#define V_PIN 4 // ADC1_CHANNEL_5
-//#define V_PIN 34 // ADC1_CHANNEL_6
-#define R1 100000
-#define R2 10000
-#define V_MIN 9.0
-#define MEASURE_TIME 10000
-
-// Leds, Speaker pins
-#define SPEAKER_PIN 36
-
-#define WORKING_PIN 32
-
-// Tasks  
-#define Task_Stack_Size 10000
-
-
-// GIROSCOPE PINS
-#define SDA 27
-#define SCL 16
-#define INTERRUPT 26
-
-
-// OBJECTS #######################################################################
+//#######################################################################################################
+// OBJECTS ##############################################################################################
+//#######################################################################################################
 
 Motor motorA = Motor(INA_1, INA_2, PWM_A);
 Motor motorB = Motor(INB_1, INB_2, PWM_B);
-Voltimetro Voltimeter = Voltimetro(V_PIN,R1,R2);
-// definir o objeto giro
-Giro mpu6050 = Giro(SCL, SDA, INTERRUPT);
-PIDCONTROLLER pid = PIDCONTROLLER(10,10,10);
+Voltimetro Voltimeter = Voltimetro(V_PIN, R1, R2);
+PIDCONTROLLER pid = PIDCONTROLLER(kP, kI, kD);
+MPU6050 giroscope;
 
-
-// GLOBAL VALUES #####################################################################
+//#######################################################################################################
+// GLOBAL VALUES ########################################################################################
+//#######################################################################################################
 
 int Motor_Way = 0;
 int PWM;
 int Applications_core  = 1;
 float Read_Voltage;
-float pidGoal = 0.0;
+float pidGoal;
+float giroYaw;
 
-// ##############################################################################
+//#######################################################################################################
+// GIRO - MPU6050 - DMP ##################################################################################
+//#######################################################################################################
+// giroscope control/status vars
+bool dmpReady = false;  // set true if DMP init was successful
+uint8_t giroscopeIntStatus;   // holds actual interrupt status byte from giroscope
+uint8_t devStatus;      // return status after each device operation (0 = success, !0 = error)
+uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
+uint16_t fifoCount;     // count of all bytes currently in FIFO
+uint8_t fifoBuffer[64]; // FIFO storage buffer
+
+// orientation/motion vars
+Quaternion q;           // [w, x, y, z]         quaternion container
+VectorFloat gravity;    // [x, y, z]            gravity vector
+float euler[3];         // [psi, theta, phi]    Euler angle container
+float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 
-// possivelmente task do bluetooth
-// terminar documentação e renomear task
-void bluetooth(void * pvParameters){
-  for (;;){
-    
+// ===               INTERRUPT DETECTION ROUTINE                ===
+volatile bool giroscopeInterrupt = false;     // indicates whether giroscope interrupt pin has gone high
+void dmpDataReady() {
+  giroscopeInterrupt = true;
+}
+
+// ===               GIRO SETUP DETECTION ROUTINE                ===
+void giroSetup() {
+  Wire.begin(SDA, SCL);
+  Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+
+  giroscope.initialize();
+  Serial.println(giroscope.testConnection() ? F("MPU6050 connected") : F("MPU6050 not connected"));
+
+  devStatus = giroscope.dmpInitialize();
+
+  // supply your own gyro offsets here, scaled for min sensitivity
+  giroscope.setXGyroOffset(XGyOffset);
+  giroscope.setYGyroOffset(YGyOffset);
+  giroscope.setZGyroOffset(ZGyOffset);
+  giroscope.setZAccelOffset(ZAccOffset); // 1688 factory default for my test chip
+
+  giroscope.setDMPEnabled(true);
+  attachInterrupt(digitalPinToInterrupt(INTERRUPT), dmpDataReady, RISING);
+  giroscopeIntStatus = giroscope.getIntStatus();
+  dmpReady = true;
+
+  // get expected DMP packet size for later comparison
+  packetSize = giroscope.dmpGetFIFOPacketSize();
+}
+
+//#######################################################################################################
+//FIRMWARE TASKS (THREADS) ##############################################################################
+//#######################################################################################################
+void bluetooth(void * pvParameters) {
+  for (;;) {
+
   }
 }
 
-void voltimeter(void * pvParameters){
-  for (;;){
-    //Serial.println("voltimeter");
+void voltimeter(void * pvParameters) {
+  for (;;) {
 
-    // gets battery voltage measue using .getVoltage()
-    // function from Voltimeter class
     Read_Voltage = Voltimeter.getVoltage();
-    
-    // Serial.print("TENSAO Bateria: ");
-    // Serial.println(Read_Value);
-    
-    // turns on/off low battery warning led if 
-    // battery voltage is less then 9.0 V
-    if(Read_Voltage < V_MIN){
-      Serial.println("LOW");
-      digitalWrite(SPEAKER_PIN,HIGH);
+
+    if (Read_Voltage < V_MIN) {
+      digitalWrite(SPEAKER_PIN, HIGH);
     }
-    else{
-      digitalWrite(SPEAKER_PIN,LOW);
+    else {
+      digitalWrite(SPEAKER_PIN, LOW);
     }
-    
-    Serial.println(Read_Voltage);
-    
-    // waits 60 seconds for next measurement
-    // of battery voltage
+
     delay(MEASURE_TIME);
   }
 }
 
-void giro(void * pvParameters){
-  for (;;){
-    mpu6050.getYPR();
+void giro(void * pvParameters) {
+  for (;;) {
+    while (!giroscopeInterrupt && fifoCount < packetSize) {
+    }
+
+    // reset interrupt flag and get INT_STATUS byte
+    giroscopeInterrupt = false;
+    giroscopeIntStatus = giroscope.getIntStatus();
+
+    // get current FIFO count
+    fifoCount = giroscope.getFIFOCount();
+
+    // check for overflow (this should never happen unless our code is too inefficient)
+    if ((giroscopeIntStatus & 0x10) || fifoCount == 1024) {
+      // reset so we can continue cleanly
+      giroscope.resetFIFO();
+      //Serial.println(F("FIFO overflow!"));
+
+      // otherwise, check for DMP data ready interrupt (this should happen frequently)
+    } else if (giroscopeIntStatus & 0x02) {
+      // wait for correct available data length, should be a VERY short wait
+      while (fifoCount < packetSize) fifoCount = giroscope.getFIFOCount();
+
+      // read a packet from FIFO
+      giroscope.getFIFOBytes(fifoBuffer, packetSize);
+
+      // track FIFO count here in case there is > 1 packet available
+      // (this lets us immediately read more without waiting for an interrupt)
+      fifoCount -= packetSize;
+
+      // display Euler angles in degrees
+      giroscope.dmpGetQuaternion(&q, fifoBuffer);
+      giroscope.dmpGetGravity(&gravity, &q);
+      giroscope.dmpGetYawPitchRoll(ypr, &q, &gravity);
+      Serial.print("ypr\t");
+      Serial.print(ypr[0] * 180 / M_PI);
+      Serial.print("\t");
+      Serial.print(ypr[1] * 180 / M_PI);
+      Serial.print("\t");
+      Serial.println(ypr[2] * 180 / M_PI);
+    }
   }
 }
 
 
-void PID(void * pvParameters){
+void PID(void * pvParameters) {
   float output;
-  for (;;){
+  for (;;) {
     //direcao do giro
-    pid.updateReading(3.02);
+    pid.updateReading(giroYaw);
 
     //direcao recebida visao
     pid.setGoal(pidGoal);
-    
+
     output = pid.control();
 
     Serial.println(output);
   }
 }
 
-void enableMotors(void * pvParameters){
-  for (;;){
-    
+void enableMotors(void * pvParameters) {
+  for (;;) {
+
     PWM = 255;
-    
-    motorA.enable(PWM, Motor_Way); 
-    motorB.enable(PWM, -1*Motor_Way); 
+
+    motorA.enable(PWM, Motor_Way);
+    motorB.enable(PWM, -1 * Motor_Way);
   }
 }
-   
 
-// pinModes, serial, and FreeRTOS tasks 
-// creation when robot turns ON
+//#######################################################################################################
+// USEFUL FUNTCIONS  ####################################################################################
+//#######################################################################################################
+void setPinModes(){
+    pinMode(WORKING_PIN, OUTPUT);
+    pinMode(SPEAKER_PIN, OUTPUT);
+}
+
+//#######################################################################################################
+// SETUP FUNCTION #########################################################################################
+//#######################################################################################################
 void setup() {
-    Serial.begin(115200);
-    Serial.println("running");
+  Serial.begin(115200);
 
+  giroSetup();
+  setPinModes();
+  
+  digitalWrite(WORKING_PIN, HIGH);
+  
+  xTaskCreatePinnedToCore(giro, "giro", Task_Stack_Size, NULL, 0, NULL, Applications_core);
+  xTaskCreatePinnedToCore(bluetooth, "bluetooth", Task_Stack_Size, NULL, 0, NULL, Applications_core);
+  xTaskCreatePinnedToCore(voltimeter, "voltimeter", Task_Stack_Size, NULL, 0, NULL, Applications_core);
+  xTaskCreatePinnedToCore(PID, "pid", Task_Stack_Size, NULL, 0, NULL, Applications_core);
+  xTaskCreatePinnedToCore(enableMotors, "enableMotors", Task_Stack_Size, NULL, 0, NULL, Applications_core);
 
-    // pinModes for leds, buzzer
-    pinMode(WORKING_PIN,OUTPUT);
-    digitalWrite(WORKING_PIN,HIGH);
-    
-    pinMode(SPEAKER_PIN,OUTPUT);
-   
-    
-    //
-    // tasks creation pinned to a core
-    // with following sequence of parameters
-    // (task_function, task_name, task_stack_size, 
-    //  task_parameters, task_priority, task_handle, task_core)
-    //
-
-    xTaskCreatePinnedToCore(giro,"giro",Task_Stack_Size,NULL,0,NULL,Applications_core);
-    xTaskCreatePinnedToCore(bluetooth,"bluetooth",Task_Stack_Size,NULL,0,NULL,Applications_core);
-    xTaskCreatePinnedToCore(voltimeter,"voltimeter",Task_Stack_Size,NULL,0,NULL,Applications_core);
-    xTaskCreatePinnedToCore(PID,"pid",Task_Stack_Size,NULL,0,NULL,Applications_core);
-    xTaskCreatePinnedToCore(enableMotors,"enableMotors",Task_Stack_Size,NULL,0,NULL,Applications_core);
-
-    
-    
-    delay(200);
-    digitalWrite(WORKING_PIN,LOW);
+  digitalWrite(WORKING_PIN, LOW);
 }
 
 
-// enable both motors with last pwm and 
-// motor_way received values from BT master
-// runs on core 1 by default
+//#######################################################################################################
+// LOOP FUNCTION  #######################################################################################
+//#######################################################################################################
 void loop() {
 
-    delay(10000);
+
 }
