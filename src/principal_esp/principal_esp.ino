@@ -17,8 +17,8 @@
 // OBJECTS ##############################################################################################
 //#######################################################################################################
 
-Motor motorA = Motor(INA_1, INA_2, PWM_A);
-Motor motorB = Motor(INB_1, INB_2, PWM_B);
+//Motor motorA = Motor(INA_1, INA_2, PWM_A);
+//Motor motorB = Motor(INB_1, INB_2, PWM_B);
 Voltimetro Voltimeter = Voltimetro(V_PIN, R1, R2);
 PIDCONTROLLER pid = PIDCONTROLLER(kP, kI, kD);
 MPU6050 giroscope;
@@ -47,6 +47,9 @@ uint8_t fifoBuffer[64]; // FIFO storage buffer
 
 // orientation/motion vars
 Quaternion q;           // [w, x, y, z]         quaternion container
+VectorInt16 aa;         // [x, y, z]            accel sensor measurements
+VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
+VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
 VectorFloat gravity;    // [x, y, z]            gravity vector
 float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
@@ -88,12 +91,13 @@ void giroSetup() {
 //#######################################################################################################
 void bluetooth(void * pvParameters) {
   for (;;) {
-
+      //Serial.println("\t BT");
   }
 }
 
 void voltimeter(void * pvParameters) {
   for (;;) {
+    //Serial.println("voltimeter");
 
     Read_Voltage = Voltimeter.getVoltage();
 
@@ -109,8 +113,11 @@ void voltimeter(void * pvParameters) {
 }
 
 void giro(void * pvParameters) {
+
   for (;;) {
+
     while (!giroscopeInterrupt && fifoCount < packetSize) {
+
     }
 
     // reset interrupt flag and get INT_STATUS byte
@@ -137,44 +144,53 @@ void giro(void * pvParameters) {
       // track FIFO count here in case there is > 1 packet available
       // (this lets us immediately read more without waiting for an interrupt)
       fifoCount -= packetSize;
-
-      // display Euler angles in degrees
+      
+     
+        // display Euler angles in degrees
       giroscope.dmpGetQuaternion(&q, fifoBuffer);
       giroscope.dmpGetGravity(&gravity, &q);
       giroscope.dmpGetYawPitchRoll(ypr, &q, &gravity);
-      Serial.print("ypr\t");
-      Serial.print(ypr[0] * 180 / M_PI);
-      Serial.print("\t");
-      Serial.print(ypr[1] * 180 / M_PI);
-      Serial.print("\t");
-      Serial.println(ypr[2] * 180 / M_PI);
+           
     }
   }
 }
 
 
 void PID(void * pvParameters) {
+  float yaw;
   float output;
   for (;;) {
+  
+    yaw = ypr[0] * 180 / M_PI;  
     //direcao do giro
-    pid.updateReading(giroYaw);
+    pid.updateReading(yaw);
 
     //direcao recebida visao
-    pid.setGoal(pidGoal);
+    pid.setGoal(100.0);
 
     output = pid.control();
 
+    Serial.print("GIRO YAW ");
+    Serial.print(yaw);
+    Serial.print("\tPID ");
     Serial.println(output);
+
+    PWM = 255;
+
+    //motorA.enable(PWM, Motor_Way);
+    //motorB.enable(PWM, -1 * Motor_Way);
+    delay(1);
+  
   }
 }
 
 void enableMotors(void * pvParameters) {
   for (;;) {
-
-    PWM = 255;
-
-    motorA.enable(PWM, Motor_Way);
-    motorB.enable(PWM, -1 * Motor_Way);
+//
+//    PWM = 255;
+//
+//    motorA.enable(PWM, Motor_Way);
+//    motorB.enable(PWM, -1 * Motor_Way);
   }
 }
 
@@ -196,12 +212,14 @@ void setup() {
   setPinModes();
   
   digitalWrite(WORKING_PIN, HIGH);
-  
+  //Serial.println("oi");
   xTaskCreatePinnedToCore(giro, "giro", Task_Stack_Size, NULL, 0, NULL, Applications_core);
   xTaskCreatePinnedToCore(bluetooth, "bluetooth", Task_Stack_Size, NULL, 0, NULL, Applications_core);
   xTaskCreatePinnedToCore(voltimeter, "voltimeter", Task_Stack_Size, NULL, 0, NULL, Applications_core);
+  delay(10000);
+  Serial.println("DONE GIRO SETUP");
   xTaskCreatePinnedToCore(PID, "pid", Task_Stack_Size, NULL, 0, NULL, Applications_core);
-  xTaskCreatePinnedToCore(enableMotors, "enableMotors", Task_Stack_Size, NULL, 0, NULL, Applications_core);
+  //xTaskCreatePinnedToCore(enableMotors, "enableMotors", Task_Stack_Size, NULL, 0, NULL, Applications_core);
 
   digitalWrite(WORKING_PIN, LOW);
 }
@@ -212,5 +230,5 @@ void setup() {
 //#######################################################################################################
 void loop() {
 
-
+  delay(1000);
 }

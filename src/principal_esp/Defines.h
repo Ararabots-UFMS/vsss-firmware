@@ -23,20 +23,22 @@
 #define WORKING_PIN 32
 
 // Tasks  
-#define Task_Stack_Size 1000000
+#define Task_Stack_Size 30000
 
 // GIROSCOPE PINS
 #define SDA 32
 #define SCL 16
-#define INTERRUPT 34
+#define INTERRUPT 4
+#define OUTPUT_READABLE_YAWPITCHROLL
+
 
 // GIROSCOPE OFFSETS
-#define XGyOffset 0
+#define XGyOffset 62
 #define YGyOffset 0
-#define ZGyOffset 0
-#define XAccOffset 0
-#define YAccOffset 0
-#define ZAccOffset 0
+#define ZGyOffset 12
+#define XAccOffset -282
+#define YAccOffset -42
+#define ZAccOffset 1856
 
 // PID CONSTANTS
 #define kP 10
