@@ -1,0 +1,161 @@
+0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 
+mode:DIO, clock div:1
+load:0x3fff0018,len:4
+load:0x3fff001c,len:808
+load:0x40078000,len:6084
+load:0x40080000,len:6696
+entry 0x400802e4
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+Send any character to start sketch.
+
+
+MPU6050 Calibration Sketch
+
+Your MPU6050 should be placed in horizontal position, with package letters facing up. 
+Don't touch it until you see a finish message.
+
+MPU6050 connection successful
+
+Reading sensors for first time...
+
+Calculating offsets...
+...
+...
+...
+...
+...
+...
+...
+...
+
+FINISHED!
+
+Sensor readings with offsets:	-8	-4	16380	0	0	0
+Your offsets:	-343	-7	1809	62	-7	15
+
+Data is printed as: acelX acelY acelZ giroX giroY giroZ
+Check that your sensor readings are close to 0 0 16384 0 0 0
+If calibration was succesful write down your offsets so you can set them in your projects using something similar to mpu.setXAccelOffset(youroffset)
+
