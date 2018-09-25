@@ -42,6 +42,14 @@ int PWM;                      // global value for the PWM that will be written t
 float Read_Voltage;           // global value for voltimeter measure
 float output_correction;      // output value for PID
 
+float set_point;    // PID new set point
+float last_set_point;
+float last_pid_direction;
+float pid_direction;          // PID rotation direction
+
+float wheels_direction;
+float base_speed;             // base speed from motors
+
 
 //#######################################################################################################
 // GIRO - MPU6050 - DMP #################################################################################
@@ -175,47 +183,38 @@ void giro(void * pvParameters) {
 
 // performs PID correction under yaw values and vision received values
 void PID(void * pvParameters) {
-  float yaw;              // yaw value for DMP read corrected to be from 0 to 360
-  float vision_reference; // angular value received from vision
-
-  pid.setGoal(0.0);
-
-  for (;;) {
-  
-    yaw = (ypr[0] * 180 / M_PI) + 180.0;  
-    vision_reference = 100.0;
-
-    pid.updateReading(yaw-vision_reference);
+  float my_direction;              // yaw value for DMP read corrected to be from 0 to 360
+  while(1)
+  {
+    my_direction = ypr[0] * 180 / M_PI;
+    if(set_point != last_set_point && pid_direction !=last_pid_direction)
+    {
+      pid.setGoal(my_direction + pid_direction*set_point);
+      last_set_point = set_point;
+      last_pid_direction = pid_direction;
+    }
+    pid.updateReading(my_direction);
     output_correction = pid.control();
-
   }
 }
 
 // enable motors with PID correction values and way values 
 void enableMotors(void * pvParameters) {
   for (;;) {
-      /*
-       *  if(sentido == 0){
-       *      if(output_correction > 0){
-       *        motorA.enable(pwm-correction, sentido);
-       *        motorA.enable();
-       *      }
-       *      else{
-       *        motorB.enable(pwm+correction, sentido);
-       *        motorA.enable();
-       *      }
-       *  }
-       *  else{
-       *      if(output_correction > 0){
-       *        motorA.enable(); 
-       *        motorA.enable();
-       *      }
-       *      else{
-       *        motorB.enable();
-       *        motorA.enable();
-       *      }
-       *  }
-       */
+         if(wheels_direction == 0){ //Forward
+             if(output_correction > 0){
+               motorA.enable(base_speed, wheels_direction);
+               motorB.enable(base_speed-output_correction, wheels_direction);
+             }
+             else{
+               motorA.enable(base_speed-output_correction, wheels_direction);
+               motorB.enable(base_speed, wheels_direction);
+             }
+         }
+         else{
+             motorA.enable(base_speed, wheels_direction);
+             motorB.enable(base_speed, wheels_direction);
+         } 
   }
 }
 
