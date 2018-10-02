@@ -20,8 +20,8 @@
 #include "esp_gap_bt_api.h"
 #include "esp_bt_device.h"
 #include "esp_spp_api.h"
-#include "definitions.h"
-#include "parser_states.h"
+
+#include "parser.h"
 #include "time.h"
 #include "sys/time.h"
 
@@ -33,8 +33,6 @@ static const esp_spp_mode_t esp_spp_mode = ESP_SPP_MODE_CB;
 
 static const esp_spp_sec_t sec_mask = ESP_SPP_SEC_AUTHENTICATE;
 static const esp_spp_role_t role_slave = ESP_SPP_ROLE_SLAVE;
-
-static void parser_params(uint8_t param);
 
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
@@ -61,7 +59,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         ESP_LOGI(SPP_TAG, "ESP_SPP_CL_INIT_EVT");
         break;
     case ESP_SPP_DATA_IND_EVT:
-        ESP_LOGI(SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%u", param->data_ind.len, *(param->data_ind.data));
+        //ESP_LOGI(SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%u", param->data_ind.len, *(param->data_ind.data));
         //esp_log_buffer_char("Message: ", *(param->data_ind.data),param->data_ind.len);
         parser_params(*(param->data_ind.data));
         break;
@@ -104,45 +102,10 @@ void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
     return;
 }
 
-static void parser_params(uint8_t param){
-
-switch (param) {
-  case 3:
-  // implementar movimentação do motor
-    if(param == WALK_FRONT){
-      // chamada dos motores para frente com univector ou sem
-    }
-    else if(param == TURN_RIGHT){
-    // chamada dos motores para a direita com univector ou sem
-    }
-    else if(param == TURN_LEFT){
-    // chamada dos motores para a esquerda com univector ou sem
-    }
-    else if(param == MOON_WALK){
-    // chamada dos motores para tras com univector ou sem
-
-    }
-
-  break;
-  case 4:
-  // implementar robo autonomo sentido horario
-  break;
-  case 7:
-  // implementar robo autonomo sentido anti-horario
-  break;
-  case 15://> 7 && < 15:
-  // implementar update de PID
-  break;
-  default:
-  // tratamento de exceção
-  break;
-}
-
-
-}
 
 void app_main()
 {
+
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
