@@ -3,7 +3,7 @@
 #define __PIDCONTROLLER__
 
 #include <stdint.h>
-#include <Arduino.h>
+//#include <Arduino.h>
 
 
 class PIDCONTROLLER

@@ -24,14 +24,17 @@ static char angle[4][4] = {
 
 void parser_params(uint8_t received_param){
 
-	first_operation = current_state & 82;
+	first_operation = current_state & 82; // 01010010
+	// Bit mask for reducing the if comparassions
 
 	switch (first_operation) {
-		case START:
-			second_operation = (received_param & 12)>>2;
+		case START: // State 00000000
+			second_operation = (received_param & 12)>>2; // Bit mask for reducing if comparassions in
+			// sum_for_next_operation at position second_operation
+			// this allows for the code to jump to next state  
 			wheels_direction = received_param & 3; // Wheels orientation
 			current_state = sum_for_next_operation[second_operation];
-			ESP_LOGE("State:", "Start\n");
+			//ESP_LOGE("State:", "Start\n");
 			break;
 		
 		case MOTOR_VELOCITY_PARAM_1:
@@ -62,17 +65,17 @@ void parser_params(uint8_t received_param){
 		
 		case SET_PID_KP:
 			if (current_state == SET_PID_KP){
-				ESP_LOGE("State:", "SET_PID_KP\n");
+				//ESP_LOGE("State:", "SET_PID_KP\n");
 				param1 = received_param;
 				current_state = SET_PID_KI;
 			}
 			else if (current_state == SET_PID_KI){
-				ESP_LOGE("State:", "SET_PID_KI\n");
+				//ESP_LOGE("State:", "SET_PID_KI\n");
 				param2 = received_param;
 				current_state = SET_PID_KD;
 			}else{
 				current_state = START;
-				ESP_LOGE("State:", "SET_PID: P:%d I:%d D:%d\n",param1,param2,received_param);
+				//ESP_LOGE("State:", "SET_PID: P:%d I:%d D:%d\n",param1,param2,received_param);
 				// implementar update de PID
 				// usando param1, 2 e o received
 			}

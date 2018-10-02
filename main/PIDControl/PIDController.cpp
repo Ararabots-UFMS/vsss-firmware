@@ -3,7 +3,7 @@
 #endif
 
 #include <stdint.h>
-#include <Arduino.h>
+//#include <Arduino.h>
 
 PIDCONTROLLER::PIDCONTROLLER(float _kP, float _kI, float _kD)
 {
