@@ -20,9 +20,9 @@
 #include "esp_gap_bt_api.h"
 #include "esp_bt_device.h"
 #include "esp_spp_api.h"
+#include "esp_timer.h"
 
-#include "parser.h"
-//#include "PIDController.h"
+#include "PIDController.h"
 
 #include "time.h"
 #include "sys/time.h"
@@ -37,6 +37,9 @@ static const esp_spp_sec_t sec_mask = ESP_SPP_SEC_AUTHENTICATE;
 static const esp_spp_role_t role_slave = ESP_SPP_ROLE_SLAVE;
 
 unsigned int counter = 0;
+PIDCONTROLLER pid_controller = PIDCONTROLLER(0,0,0);
+
+#include "parser.h"
 
 extern "C" {
 void app_main();
@@ -68,12 +71,12 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_DATA_IND_EVT:
         //ESP_LOGI(SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%u", param->data_ind.len, *(param->data_ind.data));
-        ESP_LOGI("", "%u", *(param->data_ind.data));
+        //ESP_LOGI("", "%u", *(param->data_ind.data));
         //esp_log_buffer_char("Message: ", *(param->data_ind.data),param->data_ind.len);
-        //parser_params(*(param->data_ind.data));
         //if (!((counter++)%1000) ){
         //    ESP_LOGI("> >", "To aqui");    
         //}
+        parser_params(*(param->data_ind.data));
 
         break;
     case ESP_SPP_CONG_EVT:
@@ -161,6 +164,12 @@ void app_main()
 
     if ((ret = esp_spp_init(esp_spp_mode)) != ESP_OK) {
         ESP_LOGE(SPP_TAG, "%s spp init failed: %s\n", __func__, esp_err_to_name(ret));
+        return;
+    }
+
+    // Initialize timer library for using PID
+    if ((ret = esp_timer_init()) != ESP_OK) {
+        ESP_LOGE(SPP_TAG, "%s Timer init failed: %s\n", __func__, esp_err_to_name(ret));
         return;
     }
 

@@ -1,6 +1,6 @@
 set(COMPONENT_SRCS "parser.cpp"
-				   "PidControl/PIDController.cpp"
-				   "example_spp_acceptor_demo.cpp")
+				   "PIDControl/PIDController.cpp"
+				   "main.cpp")
 set(COMPONENT_ADD_INCLUDEDIRS ". include")
 
 register_component()

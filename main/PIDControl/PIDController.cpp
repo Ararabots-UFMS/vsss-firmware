@@ -1,4 +1,4 @@
-#ifndef __ PIDCONTROLLER__
+#ifndef __PIDCONTROLLER__
 #include "PIDController.h"
 #endif
 
@@ -12,6 +12,12 @@ PIDCONTROLLER::PIDCONTROLLER(float _kP, float _kI, float _kD)
   kD = _kD;
 
   previousReading = 0;
+}
+
+void PIDCONTROLLER::set_PID(float _kP, float _kI, float _kD){
+  kP = _kP;
+  kI = _kI;
+  kD = _kD;  
 }
 
 void PIDCONTROLLER::updateReading(float _reading)

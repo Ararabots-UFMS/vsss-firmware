@@ -3,6 +3,8 @@
 #define __PIDCONTROLLER__
 
 #include <stdint.h>
+#include "esp_timer.h"
+
 //#include <Arduino.h>
 
 
@@ -36,9 +38,10 @@ class PIDCONTROLLER
     void setGoal(float _goal = 0);
     // Atualiza a ultima vez em que foi executado
     void updateTime(unsigned long int t);
+    void set_PID(float,float,float);
     void updateTime()
     {
-      updateTime(millis());
+      updateTime(esp_timer_get_time()*1000);
     }
     // Retorna valor pwm
     float control();

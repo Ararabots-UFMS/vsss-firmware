@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "definitions.h"
 #include "esp_log.h"
-
+#include "PIDController.h"
 static int wheels_direction = 0; 
 static int param1 = 0;
 static int param2 = 0;
@@ -21,6 +21,9 @@ static char angle[4][4] = {
 	"   ",
 	"CCW"
 };
+extern PIDCONTROLLER pid_controller;
+
+#define DEBUG
 
 void parser_params(uint8_t received_param){
 
@@ -34,16 +37,22 @@ void parser_params(uint8_t received_param){
 			// this allows for the code to jump to next state  
 			wheels_direction = received_param & 3; // Wheels orientation
 			current_state = sum_for_next_operation[second_operation];
-			//ESP_LOGE("State:", "Start\n");
+			#ifdef DEBUG 
+				ESP_LOGE("State:", "Start\n");
+			#endif
 			break;
 		
 		case MOTOR_VELOCITY_PARAM_1:
 			if ( current_state == MOTOR_VELOCITY_PARAM_1){
-				ESP_LOGE("State:", "MOTOR_VELOCITY_PARAM_1\n");
+				#ifdef DEBUG 		
+					ESP_LOGE("State:", "MOTOR_VELOCITY_PARAM_1\n");
+				#endif
 				param1 = received_param;
 				current_state = MOTOR_VELOCITY_PARAM_2;
-			}else{
-				ESP_LOGE("State:", "MOTOR_VELOCITY_PARAM_2 %s\n", msg_walk[wheels_direction] );
+			}else{		
+				#ifdef DEBUG 
+					ESP_LOGE("State:", "MOTOR_VELOCITY_PARAM_2 %s\n", msg_walk[wheels_direction] );
+				#endif
 				param2 = received_param;
 				// MOTOR FORCE YEAH
 				current_state = START;
@@ -52,12 +61,16 @@ void parser_params(uint8_t received_param){
 
 		case SET_ANGLE_CORRECTION_THETA://> 7 && < 15:
 			if ( current_state == SET_ANGLE_CORRECTION_THETA){
-				ESP_LOGE("State:", "SET_ANGLE_CORRECTION_THETA\n");
+				#ifdef DEBUG 
+					ESP_LOGE("State:", "SET_ANGLE_CORRECTION_THETA\n");
+				#endif				
 				param1 = received_param;
 				current_state = SET_ANGLE_CORRECTION_SPEED;
 			}else{
 				param2 = received_param;
-				ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n",param1, param2, angle[wheels_direction]);
+				#ifdef DEBUG 
+					ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n",param1, param2, angle[wheels_direction]);
+				#endif
 				// implementar robo autonomo sentido horario com wheel direction
 				current_state = START;
 			}
@@ -74,10 +87,13 @@ void parser_params(uint8_t received_param){
 				param2 = received_param;
 				current_state = SET_PID_KD;
 			}else{
-				current_state = START;
-				//ESP_LOGE("State:", "SET_PID: P:%d I:%d D:%d\n",param1,param2,received_param);
+				#ifdef DEBUG 
+					ESP_LOGE("State:", "SET_PID: P:%d I:%d D:%d\n",param1,param2,received_param);
+				#endif
 				// implementar update de PID
 				// usando param1, 2 e o received
+				pid_controller.set_PID(param1,param2,received_param);
+				current_state = START;
 			}
 			break;
 
