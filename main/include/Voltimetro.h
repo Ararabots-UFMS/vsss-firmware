@@ -1,8 +1,17 @@
 #ifndef __VOLTIMETRO__
 #define __VOLTIMETRO__
 
-#include <Arduino.h>
+#define NIVEL_LOGICO 5.0
+#define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
+#define NO_OF_SAMPLES   64          //Multisampling
 
+#define SPEAKER_PIN    18
+
+#define V_MIN 9.0
+#define MEASURE_TIME 1000
+
+//#include <Arduino.h>
+#include "driver/gpio.h"
 
 class Voltimetro
 {

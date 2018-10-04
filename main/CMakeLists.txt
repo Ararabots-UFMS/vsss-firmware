@@ -1,4 +1,5 @@
 set(COMPONENT_SRCS "Parser/parser.cpp"
+				   "Motors/Motors.cpp"
 				   "Bluetooth/bluetooth.cpp"
 				   "PIDControl/PIDController.cpp"
 				   "main.cpp")

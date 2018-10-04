@@ -1,7 +1,7 @@
 #ifndef __MOTORS__
 #define __MOTORS__
 
-#include <Arduino.h>
+//#include <Arduino.h>
 
 #define ANTIHORARIO 0
 #define HORARIO 1

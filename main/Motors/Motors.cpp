@@ -3,7 +3,7 @@
 #endif
 
 
-#include <Arduino.h>
+//#include <Arduino.h>
 
 
 Motor::Motor(unsigned char _in1, unsigned char _in2, unsigned char _pwmPin)
@@ -14,9 +14,9 @@ Motor::Motor(unsigned char _in1, unsigned char _in2, unsigned char _pwmPin)
   pwmPin = _pwmPin;
 
   // Define os pinos como saida
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
-  pinMode(pwmPin, OUTPUT);
+  //pinMode(in1, OUTPUT);
+  //pinMode(in2, OUTPUT);
+  //pinMode(pwmPin, OUTPUT);
 
   // Inicialização
   init();
@@ -25,9 +25,9 @@ Motor::Motor(unsigned char _in1, unsigned char _in2, unsigned char _pwmPin)
 void Motor::init()
 {
   // Escrever 5 para travar o motor
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, HIGH);
-  analogWrite(pwmPin, 0);
+  //digitalWrite(in1, HIGH);
+  //digitalWrite(in2, HIGH);
+  //analogWrite(pwmPin, 0);
 
   sentidoAtual = -1;
 }
@@ -40,9 +40,9 @@ void Motor::enable(unsigned char pwm, bool sentido)
     init();
   }
 
-  digitalWrite(in1, sentido);
-  digitalWrite(in2, !sentido);
-  analogWrite(pwmPin, pwm);
+  //digitalWrite(in1, sentido);
+  //digitalWrite(in2, !sentido);
+  //analogWrite(pwmPin, pwm);
 
   // Atualiza o sentido
   sentidoAtual = sentido;
