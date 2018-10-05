@@ -35,7 +35,7 @@ void Motor::init()
 void Motor::enable(unsigned char pwm, bool sentido)
 {
   // Para o motor antes de inverter o sentido
-  if(sentidoAtual != -1 && sentido != sentidoAtual)
+  if((sentidoAtual != -1) && (sentido != sentidoAtual))
   {
     init();
   }

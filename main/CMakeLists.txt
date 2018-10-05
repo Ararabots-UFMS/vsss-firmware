@@ -1,4 +1,5 @@
-set(COMPONENT_SRCS "Parser/parser.cpp"
+set(COMPONENT_SRCS "voltimetro/Voltimetro.cpp"
+				   "Parser/parser.cpp"
 				   "Motors/Motors.cpp"
 				   "Bluetooth/bluetooth.cpp"
 				   "PIDControl/PIDController.cpp"

@@ -20,7 +20,7 @@
 #include "bluetooth.h"
 
 #include "Motors.h"
-
+#include "Voltimetro.h"
 #include "time.h"
 #include "sys/time.h"
 
@@ -42,5 +42,6 @@ void app_main()
 
     setup_bluetooth();
 
+    Voltimetro v = Voltimetro(1,2);
 
 }
