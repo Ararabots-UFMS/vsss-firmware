@@ -1,18 +1,18 @@
-#ifndef __MOTORS__
-#define __MOTORS__
+#ifndef __MOTOR__
+#define __MOTOR__
 
-//#include <Arduino.h>
-
-#define ANTIHORARIO 0
-#define HORARIO 1
+#include "definitions.h"
+#include "driver/gpio.h"
+#include "driver/mcpwm.h"
 
 class Motor
 {
   protected:
     // Pinos de controle do motor
-    unsigned char in1;
-    unsigned char in2;
-    unsigned char pwmPin;
+    gpio_num_t in1; //input de sentido
+    gpio_num_t in2; //input de sentido
+    int pwmPin; //input de pwm dos motores
+    mcpwm_io_signals_t pwmChannel;
 
     // Salva o sentido de rotação do motor
     // 0 ANTIHORARIO
@@ -23,10 +23,11 @@ class Motor
     void init();
 
   public:
-    // Metodo construtor da classe
-    Motor(unsigned char, unsigned char, unsigned char);
+    
 
-    // Funcao ativa o motor em uma velocidade e um sentido
+    Motor(gpio_num_t _in1, gpio_num_t _in2, int _pwmPin, mcpwm_io_signals_t _pwmChannel);
+
+
     void enable(unsigned char, bool);
 };
 

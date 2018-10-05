@@ -14,4 +14,3 @@
 
 #define V_MIN 9.0
 #define MEASURE_TIME 1000
-#define GPIO_PWM0A_OUT 15

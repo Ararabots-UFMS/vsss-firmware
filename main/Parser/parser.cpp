@@ -2,6 +2,7 @@
 #include "definitions.h"
 #include "esp_log.h"
 #include "PIDController.h"
+#include "state_machine_definitions.h"
 static int wheels_direction = 0; 
 static int param1 = 0;
 static int param2 = 0;

@@ -23,6 +23,7 @@
 #include "Voltimetro.h"
 #include "time.h"
 #include "sys/time.h"
+#include "driver/mcpwm.h"
 
 PIDCONTROLLER pid_controller = PIDCONTROLLER(0,0,0);
 
@@ -42,6 +43,10 @@ void app_main()
 
     setup_bluetooth();
 
-    Voltimetro v = Voltimetro(1,2);
+    //Voltimetro v = Voltimetro(1,2);
+
+    Motor LMotor = Motor(GPIO_NUM_26, GPIO_NUM_33, 21, MCPWM0A);
+    LMotor.enable(100, 1);
+    while(1){}
 
 }
