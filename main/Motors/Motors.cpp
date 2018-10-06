@@ -7,7 +7,7 @@
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
 
-Motor::Motor(gpio_num_t _in1, gpio_num_t _in2, int _pwmPin, mcpwm_io_signals_t _pwmChannel)
+Motor::Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_t _pwmChannel)
 {
   
   // Atribuicao dos pinos
@@ -15,7 +15,24 @@ Motor::Motor(gpio_num_t _in1, gpio_num_t _in2, int _pwmPin, mcpwm_io_signals_t _
   in2 = _in2;
   pwmPin = _pwmPin;
   pwmChannel = _pwmChannel;
-  mcpwm_config_t pwm_config;
+
+  ledc_channel_config_t ledc_channel;
+  ledc_channel.gpio_num = pwmPin;
+  ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
+  ledc_channel.channel = pwmChannel;
+  ledc_channel.intr_type = LEDC_INTR_DISABLE;
+  ledc_channel.timer_sel = MOTOR_PWM_TIMER;
+  ledc_channel.duty = 0;
+
+  ledc_timer_config_t ledc_timer;
+  ledc_timer.speed_mode = LEDC_HIGH_SPEED_MODE;
+  ledc_timer.bit_num = MOTOR_PWM_BIT_NUM;
+  ledc_timer.timer_num = MOTOR_PWM_TIMER;
+  ledc_timer.freq_hz = 25000;
+
+
+   ESP_ERROR_CHECK( ledc_channel_config(&ledc_channel) );
+   ESP_ERROR_CHECK( ledc_timer_config(&ledc_timer) );
 
   // Definicao dos pinos de saida, e do controle de pwm com ledc
   gpio_pad_select_gpio(in1);
@@ -23,14 +40,6 @@ Motor::Motor(gpio_num_t _in1, gpio_num_t _in2, int _pwmPin, mcpwm_io_signals_t _
 
   gpio_pad_select_gpio(in2);
   gpio_set_direction(in2, GPIO_MODE_OUTPUT);
-  mcpwm_gpio_init(MCPWM_UNIT_0, pwmChannel, pwmPin);
-
-  pwm_config.frequency = 1000;    //frequency = 500Hz,
-  pwm_config.cmpr_a = 0;    //duty cycle of PWMxA = 0
-  pwm_config.cmpr_b = 0;    //duty cycle of PWMxA = 0
-  pwm_config.counter_mode = MCPWM_UP_COUNTER;
-  pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-  mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);
 
   // Inicialização
   init();
@@ -47,7 +56,8 @@ void Motor::init()
   // Escrever 5 para travar o motor
   gpio_set_level(in1, HIGH);
   gpio_set_level(in2, HIGH);
-  mcpwm_set_signal_low(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A);
+  ESP_ERROR_CHECK( ledc_set_duty(LEDC_HIGH_SPEED_MODE, pwmChannel, 0) );
+  ESP_ERROR_CHECK( ledc_update_duty(LEDC_HIGH_SPEED_MODE, pwmChannel) );
   sentidoAtual = -1;
 }
 
@@ -66,8 +76,8 @@ void Motor::enable(unsigned char pwm, bool sentido)
 
   gpio_set_level(in1, sentido);
   gpio_set_level(in2, !sentido);
-  mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, pwm);
-  mcpwm_set_duty_type(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, MCPWM_DUTY_MODE_0);
+  ESP_ERROR_CHECK( ledc_set_duty(LEDC_HIGH_SPEED_MODE, pwmChannel, pwm) );
+  ESP_ERROR_CHECK( ledc_update_duty(LEDC_HIGH_SPEED_MODE, pwmChannel) );
   // Atualiza o sentido
   sentidoAtual = sentido;
 }

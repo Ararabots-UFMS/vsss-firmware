@@ -11,8 +11,8 @@ class Motor
     // Pinos de controle do motor
     gpio_num_t in1; //input de sentido
     gpio_num_t in2; //input de sentido
-    int pwmPin; //input de pwm dos motores
-    mcpwm_io_signals_t pwmChannel;
+    gpio_num_t pwmPin; //input de pwm dos motores
+     ledc_channel_t pwmChannel;
 
     // Salva o sentido de rotação do motor
     // 0 ANTIHORARIO
@@ -25,7 +25,7 @@ class Motor
   public:
     
 
-    Motor(gpio_num_t _in1, gpio_num_t _in2, int _pwmPin, mcpwm_io_signals_t _pwmChannel);
+    Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_t _pwmChannel);
 
 
     void enable(unsigned char, bool);
