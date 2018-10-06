@@ -46,7 +46,5 @@ void app_main()
     //Voltimetro v = Voltimetro(1,2);
 
     Motor LMotor = Motor(GPIO_NUM_26, GPIO_NUM_33, GPIO_NUM_21, MOTOR_PWM_CHANNEL_LEFT);
-    LMotor.enable(100, 1);
-    while(1){}
 
 }
