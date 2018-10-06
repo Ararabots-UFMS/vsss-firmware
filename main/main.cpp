@@ -43,8 +43,8 @@ void motor_control_task(void *pvParameter)
 		}
 		else
 		{	
-			motor_left.enable(motor_package.speed_l, motor_package.direction/2);
-			motor_right.enable(motor_package.speed_r, motor_package.direction%2);	
+			motor_left.enable(motor_package.speed_l, motor_package.direction >> 1);
+			motor_right.enable(motor_package.speed_r, motor_package.direction & 2);	
 		}
 	}
 }
