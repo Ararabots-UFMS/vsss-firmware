@@ -24,8 +24,30 @@
 #include "time.h"
 #include "sys/time.h"
 #include "driver/mcpwm.h"
+#include "definitions.h"
+#include "esp_log.h"
+struct motorPackage motor_package;
+struct controlPackage control_package; 
+Motor motor_left = Motor(AIN1, AIN2, PWMA, MOTOR_PWM_CHANNEL_A);
+Motor motor_right = Motor(BIN1, BIN2, PWMB, MOTOR_PWM_CHANNEL_B);
 
 PIDCONTROLLER pid_controller = PIDCONTROLLER(0,0,0);
+
+void motor_control_task(void *pvParameter)
+{
+	while(1)
+	{
+		if(!motor_package.control_type)
+		{
+			//pid control
+		}
+		else
+		{	
+			motor_left.enable(motor_package.speed_l, motor_package.direction/2);
+			motor_right.enable(motor_package.speed_r, motor_package.direction%2);	
+		}
+	}
+}
 
 extern "C" {
 void app_main();
@@ -43,8 +65,6 @@ void app_main()
 
     setup_bluetooth();
 
-    //Voltimetro v = Voltimetro(1,2);
-
-    Motor LMotor = Motor(GPIO_NUM_26, GPIO_NUM_33, GPIO_NUM_21, MOTOR_PWM_CHANNEL_LEFT);
+	    xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
 
 }

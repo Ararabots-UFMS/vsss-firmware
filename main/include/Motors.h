@@ -12,7 +12,7 @@ class Motor
     gpio_num_t in1; //input de sentido
     gpio_num_t in2; //input de sentido
     gpio_num_t pwmPin; //input de pwm dos motores
-     ledc_channel_t pwmChannel;
+    ledc_channel_t pwmChannel;
 
     // Salva o sentido de rotação do motor
     // 0 ANTIHORARIO

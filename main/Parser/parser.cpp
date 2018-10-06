@@ -10,6 +10,10 @@ static int current_state = START;
 static int first_operation = 0;
 static int second_operation = 0;
 static int sum_for_next_operation[4] = {0,MOTOR_VELOCITY_PARAM_1, SET_ANGLE_CORRECTION_THETA, SET_PID_KP};
+
+// #define DEBUG
+
+#ifdef DEBUG
 static char msg_walk[4][19] = {
 	"Andando pra frente",
 	"Left: 0   Right: 1",
@@ -22,9 +26,12 @@ static char angle[4][4] = {
 	"   ",
 	"CCW"
 };
-extern PIDCONTROLLER pid_controller;
+#endif
 
-#define DEBUG
+extern PIDCONTROLLER pid_controller;
+extern motorPackage motor_package;
+extern controlPackage control_package;
+
 
 void parser_params(uint8_t received_param){
 
@@ -56,6 +63,10 @@ void parser_params(uint8_t received_param){
 				#endif
 				param2 = received_param;
 				// MOTOR FORCE YEAH
+				motor_package.direction = wheels_direction; // Direction
+				motor_package.speed_l = param1; // Left speed
+				motor_package.speed_r = param2; // right speed
+				motor_package.control_type = 1; // Old or new control type
 				current_state = START;
 			}
 			break;

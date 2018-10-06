@@ -28,7 +28,7 @@ Motor::Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_
   ledc_timer.speed_mode = LEDC_HIGH_SPEED_MODE;
   ledc_timer.bit_num = MOTOR_PWM_BIT_NUM;
   ledc_timer.timer_num = MOTOR_PWM_TIMER;
-  ledc_timer.freq_hz = 25000;
+  ledc_timer.freq_hz = PWM_FREQ;
 
 
    ESP_ERROR_CHECK( ledc_channel_config(&ledc_channel) );
