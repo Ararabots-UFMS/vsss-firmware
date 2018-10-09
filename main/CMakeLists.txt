@@ -1,4 +1,5 @@
-set(COMPONENT_SRCS "voltimetro/Voltimetro.cpp"
+set(COMPONENT_SRCS 		   "Utils/Utils.cpp"
+				   "voltimetro/Voltimetro.cpp"
 				   "Parser/parser.cpp"
 				   "Motors/Motors.cpp"
 				   "Bluetooth/bluetooth.cpp"
