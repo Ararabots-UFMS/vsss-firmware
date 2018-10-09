@@ -2,67 +2,17 @@
 #include "Voltimetro.h"
 #endif
 
-static esp_adc_cal_characteristics_t *adc_chars;
-static const adc1_channel_t channel = ADC1_CHANNEL_6;     //GPIO34 if ADC1, GPIO14 if ADC2
-static const adc_atten_t atten = ADC_ATTEN_DB_0;
-static const adc_unit_t unit = ADC_UNIT_1;
+static esp_adc_cal_characteristics_t* adc_chars;
+static const adc1_channel_t channel = ADC1_CHANNEL_0;     //GPIO34 if ADC1, GPIO14 if ADC2
+static const adc_atten_t atten      = ADC_ATTEN_DB_11;
+static const adc_unit_t unit        = ADC_UNIT_1;
 
-//#include <Arduino.h>
+Voltimetro::Voltimetro( float _r1, float _r2){
 
+    r1 = _r1;
+    r2 = _r2;
 
-static void check_efuse()
-{
-    //Check TP is burned into eFuse
-    if (esp_adc_cal_check_efuse(ESP_ADC_CAL_VAL_EFUSE_TP) == ESP_OK) {
-        printf("eFuse Two Point: Supported\n");
-    } else {
-        printf("eFuse Two Point: NOT supported\n");
-    }
-
-    //Check Vref is burned into eFuse
-    if (esp_adc_cal_check_efuse(ESP_ADC_CAL_VAL_EFUSE_VREF) == ESP_OK) {
-        printf("eFuse Vref: Supported\n");
-    } else {
-        printf("eFuse Vref: NOT supported\n");
-    }
-}
-
-static void print_char_val_type(esp_adc_cal_value_t val_type)
-{
-    if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-        printf("Characterized using Two Point Value\n");
-    } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-        printf("Characterized using eFuse Vref\n");
-    } else {
-        printf("Characterized using Default Vref\n");
-    }
-}
-
-Voltimetro::Voltimetro( float _r1, float _r2)
-{
-
-	r1 = _r1;
-	r2 = _r2;
-
-	factor = (float) (r1 + r2) / (float) r2;
-
-	// Set the alerting sound pin
-	gpio_config_t io_conf;
-	//disable interrupt
-	io_conf.intr_type = GPIO_INTR_DISABLE;
-	//set as output mode
-	io_conf.mode = GPIO_MODE_OUTPUT;
-	//bit mask of the pins that you want to set,e.g.GPIO18/19
-	io_conf.pin_bit_mask = SPEAKER_PIN;
-	//disable pull-down mode
-	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-	//disable pull-up mode
-	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-	//configure GPIO with the given settings
-	gpio_config(&io_conf);
-
-	//Check if Two Point or Vref are burned into eFuse
-    check_efuse();
+    factor = (float) (r1 + r2) / (float) r2;
 
     //Configure ADC
     adc1_config_width(ADC_WIDTH_BIT_12);
@@ -70,8 +20,7 @@ Voltimetro::Voltimetro( float _r1, float _r2)
 
     //Characterize ADC
     adc_chars = (esp_adc_cal_characteristics_t*) calloc(1, sizeof(esp_adc_cal_characteristics_t));
-    esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
-    print_char_val_type(val_type);
+    esp_adc_cal_characterize(unit, atten, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
 }
 
 
@@ -79,34 +28,31 @@ float Voltimetro::analogRead(){
     adc_reading = 0;
     //Multisampling
     for (int i = 0; i < NO_OF_SAMPLES; i++) {
-        adc_reading += adc1_get_raw((adc1_channel_t)channel);
+        adc_reading += adc1_get_raw((adc1_channel_t) channel);
     }
-    adc_reading /= NO_OF_SAMPLES;
+
     //Convert adc_reading to voltage in mV
-    
-	return esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
+    adc_reading /= NO_OF_SAMPLES;
+
+    // Returns voltage in float
+    return ((float) esp_adc_cal_raw_to_voltage(adc_reading, adc_chars));
 }
 
-float Voltimetro::getVoltage()
-{
-  return (NIVEL_LOGICO * analogRead() * factor) / 1023.0;
+float Voltimetro::getVoltage(){
+    return (analogRead() * factor) / 1023.0;
 }
 
 // performs baterry measure and warning low voltage values
 void Voltimetro::perform_reading(void * pvParameters) {
-  while(true){
-    read_Voltage = getVoltage();
+    while(true){
+        read_Voltage = getVoltage();
 
-    //debug only
-    //read_Voltage = 8.0;
-    //Serial.println(read_Voltage);
-
-    if (read_Voltage < V_MIN) {
-      gpio_set_level(SPEAKER_PIN, HIGH);
+        if (read_Voltage < V_MIN) {
+            gpio_set_level(SPEAKER_PIN, HIGH);
+        }
+        else {
+            gpio_set_level(SPEAKER_PIN, LOW);
+        }
+        vTaskDelay(MEASURE_TIME);
     }
-    else {
-      gpio_set_level(SPEAKER_PIN, LOW);
-    }
-    vTaskDelay(MEASURE_TIME);
-  }
 }
