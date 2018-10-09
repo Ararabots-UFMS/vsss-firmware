@@ -31,11 +31,16 @@ extern "C" {
     void app_main();
 }
 
-void voltimetro(void * pV){
+void voltimetro(void * pvParamters){
+    Voltimetro V(R1,R2);
 
+    V.perform_reading();
 }
 
 void app_main(){
+
+
+    xCreateTask(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL)
     // Voltimetro a(R1,R2);
     // while(1){
     //     float f = a.getVoltage();
