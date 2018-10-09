@@ -1,9 +1,9 @@
 /*
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
+This example code is in the Public Domain (or CC0 licensed, at your option.)
 
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
+Unless required by applicable law or agreed to in writing, this
+software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied.
 */
 
 #define SPP_TAG "Eymael"
@@ -25,26 +25,22 @@
 #include "sys/time.h"
 #include "driver/mcpwm.h"
 
-PIDCONTROLLER pid_controller = PIDCONTROLLER(0,0,0);
+#include "definitions.h"
 
 extern "C" {
-void app_main();
+    void app_main();
 }
 
-void app_main()
-{
+void app_main(){
 
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
+    Voltimetro a(R1,R2);
+    while(1){
+        float f = a.getVoltage();
+        printf("Voltage: %f\n", f);
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
-    ESP_ERROR_CHECK( ret );
-
-    setup_bluetooth();
-
-    //Voltimetro v = Voltimetro(1,2);
-
-    Motor LMotor = Motor(GPIO_NUM_26, GPIO_NUM_33, GPIO_NUM_21, MOTOR_PWM_CHANNEL_LEFT);
-
+    
+    printf("Restarting now.\n");
+    fflush(stdout);
+    // esp_restart();
 }
