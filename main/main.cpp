@@ -31,16 +31,20 @@ extern "C" {
     void app_main();
 }
 
-void app_main(){
+void voltimetro(void * pV){
 
-    Voltimetro a(R1,R2);
-    while(1){
-        float f = a.getVoltage();
-        printf("Voltage: %f\n", f);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
+}
+
+void app_main(){
+    // Voltimetro a(R1,R2);
+    // while(1){
+    //     float f = a.getVoltage();
+    //     printf("Voltage: %f\n", f);
+    //     vTaskDelay(pdMS_TO_TICKS(1000));
+    // }
     
-    printf("Restarting now.\n");
-    fflush(stdout);
-    // esp_restart();
+    // printf("Restarting now.\n");
+    // fflush(stdout);
+    // // esp_restart();
+
 }

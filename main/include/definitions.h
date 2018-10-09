@@ -13,10 +13,9 @@
 #define MOTOR_PWM_TIMER LEDC_TIMER_1
 #define MOTOR_PWM_BIT_NUM LEDC_TIMER_8_BIT
 
-#define NIVEL_LOGICO 	5.0
 #define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES   64          //Multisampling
-#define SPEAKER_PIN    GPIO_NUM_18
+#define SPEAKER_PIN    	GPIO_NUM_18
 
 #define HIGH 1
 #define LOW  0
@@ -25,5 +24,5 @@
 #define MEASURE_TIME 1000
 #define GPIO_PWM0A_OUT 15
 
-#define R1 100000
-#define R2 10000
+#define R1 100150
+#define R2 9910
