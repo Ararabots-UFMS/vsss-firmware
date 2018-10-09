@@ -43,13 +43,13 @@ void motor_control_task(void *pvParameter)
 		if(!motor_package.control_type)
 		{
 			//pid control
-			if(motor_package.tetha != lastTheta || motor_package.direction != lastDirection)
-			{
+			// if(motor_package.tetha != lastTheta || motor_package.direction != lastDirection)
+			// {
 				// lastTheta = motor_package.tetha;
 				// lastDirection = motor_package.direction;
 				// if(motor_package.direction)
 				// pid_controller.setGoal(######GIRO##### + (motor_package.direction - 1))
-			}
+			// }
 				// pid_controller.updateReading(####GIRO#####)
 		}
 		else
