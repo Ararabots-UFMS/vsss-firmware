@@ -60,6 +60,28 @@ void motor_control_task(void *pvParameter)
 	}
 }
 
+void voltimetro(void * pvParamters){
+    Voltimetro voltimetro(R1,R2);
+
+    /* Select the GPIO to be used */
+    gpio_pad_select_gpio(SPEAKER_PIN);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(SPEAKER_PIN, GPIO_MODE_OUTPUT);
+
+
+    while(true){
+
+        // If the read voltage is less than 9 volts it activates the buzzer
+        if (voltimetro.getVoltage() < V_MIN) {
+            gpio_set_level(SPEAKER_PIN, HIGH);
+        }
+        else {
+            gpio_set_level(SPEAKER_PIN, LOW);
+        }
+        vTaskDelay(MEASURE_TIME);
+    }
+}
+
 extern "C" {
 void app_main();
 }
@@ -76,6 +98,7 @@ void app_main()
 
     setup_bluetooth();
 
-	    xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
+	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
+    xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
 
 }
