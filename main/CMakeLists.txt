@@ -1,4 +1,5 @@
 set(COMPONENT_SRCS "voltimetro/Voltimetro.cpp"
+				   "Gyro/gyro.cpp"
 				   "Parser/parser.cpp"
 				   "Motors/Motors.cpp"
 				   "Bluetooth/bluetooth.cpp"
