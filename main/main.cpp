@@ -32,15 +32,31 @@ extern "C" {
 }
 
 void voltimetro(void * pvParamters){
-    Voltimetro V(R1,R2);
+    Voltimetro voltimetro(R1,R2);
 
-    V.perform_reading();
+    /* Select the GPIO to be used */
+    gpio_pad_select_gpio(SPEAKER_PIN);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(SPEAKER_PIN, GPIO_MODE_OUTPUT);
+
+
+    while(true){
+
+        // If the read voltage is less than 9 volts it activates the buzzer
+        if (voltimetro.getVoltage() < V_MIN) {
+            gpio_set_level(SPEAKER_PIN, HIGH);
+        }
+        else {
+            gpio_set_level(SPEAKER_PIN, LOW);
+        }
+        vTaskDelay(MEASURE_TIME);
+    }
 }
 
 void app_main(){
 
 
-    xCreateTask(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL)
+    xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
     // Voltimetro a(R1,R2);
     // while(1){
     //     float f = a.getVoltage();

@@ -46,16 +46,5 @@ float Voltimetro::getVoltage(){
 
 // performs baterry measure and warning low voltage values
 void Voltimetro::perform_reading(void * pvParameters) {
-    while(true){
-        read_Voltage = getVoltage();
 
-        // If the read voltage is less than 9 volts it activates the buzzer
-        if (read_Voltage < V_MIN) {
-            gpio_set_level(SPEAKER_PIN, HIGH);
-        }
-        else {
-            gpio_set_level(SPEAKER_PIN, LOW);
-        }
-        vTaskDelay(MEASURE_TIME);
-    }
 }
