@@ -49,15 +49,14 @@ void app_main()
     ESP_ERROR_CHECK( ret );
     // setup_bluetooth();
   
-    //enable(LED_PIN, DUTY_CYCLE_10, FREQ_4, 3000);
-    //enable(LED_PIN, DUTY_CYCLE_80, FREQ_10, 1000);  
-    //enable(LED_PIN, DUTY_CYCLE_50, FREQ_2, 6000);
+    
+    
     while(1){
-      enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_12, 1000);  
-      enable(LED_PIN, DUTY_CYCLE_10, FREQ_4, 3000);
+      enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_4, 1000000);
+      enable(LED_PIN, DUTY_CYCLE_50, FREQ_10, 2000000);
+    
+      vTaskDelay(3000 / portTICK_PERIOD_MS);
     }
-  
-
 
     // thing enable = {LED_PIN, DUTY_CYCLE_50, FREQ_2};
     // TaskHandle_t handler;
