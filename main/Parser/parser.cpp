@@ -11,8 +11,6 @@ static int first_operation = 0;
 static int second_operation = 0;
 static int sum_for_next_operation[4] = {0,MOTOR_VELOCITY_PARAM_1, SET_ANGLE_CORRECTION_THETA, SET_PID_KP};
 
-// #define DEBUG
-
 #ifdef DEBUG
 static char msg_walk[4][19] = {
 	"Andando pra frente",

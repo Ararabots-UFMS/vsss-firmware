@@ -41,7 +41,7 @@ class PIDCONTROLLER
     void set_PID(float,float,float);
     void updateTime()
     {
-      updateTime(esp_timer_get_time()*1000);
+      updateTime();
     }
     // Retorna valor pwm
     float control();

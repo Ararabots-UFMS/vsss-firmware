@@ -2,6 +2,22 @@
 #include <stdint.h>
 #include "driver/ledc.h"
 #include "esp_err.h"
+#include "driver/gpio.h"
+
+// Should debug?
+#define DEBUG
+
+// Robot name and tag for debug
+#define SPP_TAG "Eymael"
+#define SPP_SERVER_NAME "SPP_SERVER"
+#define DEVICE_NAME "Eymael"
+
+// GYROSCOPE CONSTANTS
+#define GYRO_SDA_PIN GPIO_NUM_14
+#define GYRO_SCL_PIN GPIO_NUM_26
+#define GYRO_CLOCK_SPEED 400000 
+#define GYRO_INT_PIN 17
+#define GYRO_SAMPLE_RATE 250
 
 // MOTOR CLASS CONSTANTS
 #define ANTIHORARIO 0

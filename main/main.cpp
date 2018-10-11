@@ -26,6 +26,9 @@
 #include "driver/mcpwm.h"
 #include "definitions.h"
 #include "esp_log.h"
+#include "esp_timer.h"
+#include <gyro.h>
+
 struct motorPackage motor_package;
 struct controlPackage control_package; 
 Motor motor_left = Motor(AIN1, AIN2, PWMA, MOTOR_PWM_CHANNEL_A);
@@ -38,6 +41,13 @@ PIDCONTROLLER pid_controller = PIDCONTROLLER(0,0,0);
 
 void motor_control_task(void *pvParameter)
 {
+    float yaw;
+    auto gyro = Gyro();
+
+    #ifdef DEBUG
+        long long int last_time = esp_timer_get_time(), newer;
+    #endif
+
 	while(1)
 	{
 		if(!motor_package.control_type)
@@ -51,7 +61,15 @@ void motor_control_task(void *pvParameter)
 				// pid_controller.setGoal(######GIRO##### + (motor_package.direction - 1))
 			// }
 				// pid_controller.updateReading(####GIRO#####)
-		}
+            gyro.update_yaw(&yaw);
+            #ifdef DEBUG
+                newer = esp_timer_get_time();
+                if ((newer-last_time) > 50000){
+                    ESP_LOGW("Gyro:", "Yaw: %f" ,yaw);
+                    last_time = newer;
+                }
+	        #endif   
+    	}
 		else
 		{	
 			motor_left.enable(motor_package.speed_l, motor_package.direction >> 1);
@@ -96,7 +114,7 @@ void app_main()
     }
     ESP_ERROR_CHECK( ret );
 
-    setup_bluetooth();
+    //setup_bluetooth();
 
 	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
     xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);

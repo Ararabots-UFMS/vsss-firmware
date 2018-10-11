@@ -5,14 +5,15 @@
 // Can use to check which protocol has been selected.
 
 //static I2C_t& i2c                     = i2c0;  // i2c0 or i2c1
-static constexpr gpio_num_t SDA       = GPIO_NUM_14;
-static constexpr gpio_num_t SCL       = GPIO_NUM_26;
-static constexpr uint32_t CLOCK_SPEED = 400000;  // 400 KHz
+static constexpr gpio_num_t SDA       = GYRO_SDA_PIN;
+static constexpr gpio_num_t SCL       = GYRO_SCL_PIN;
+static constexpr uint32_t CLOCK_SPEED = GYRO_CLOCK_SPEED;  // 400 KHz
+constexpr uint16_t kFIFOPacketSize = 12;
+static void mpuISR(void*);
 
 /* MPU configuration */
-
-static constexpr int kInterruptPin         = 17;  // GPIO_NUM
-static constexpr uint16_t kSampleRate      = 250;  // Hz
+static constexpr int kInterruptPin         = GYRO_INT_PIN;  // GPIO_NUM
+static constexpr uint16_t kSampleRate      = GYRO_SAMPLE_RATE;  // Hz
 static constexpr mpud::accel_fs_t kAccelFS = mpud::ACCEL_FS_4G;
 static constexpr mpud::gyro_fs_t kGyroFS   = mpud::GYRO_FS_500DPS;
 static constexpr mpud::dlpf_t kDLPF        = mpud::DLPF_98HZ;
@@ -33,10 +34,10 @@ Gyro::Gyro(){
 
     // Verify connection
     while (esp_err_t err = MPU.testConnection()) {
-        ESP_LOGE(TAG, "Failed to connect to the MPU, error=%#X", err);
+        ESP_LOGE(SPP_TAG, "Failed to connect to the MPU, error=%#X", err);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
-    ESP_LOGI(TAG, "MPU connection successful!");
+    ESP_LOGI(SPP_TAG, "MPU connection successful!");
 
     // Initialize
     ESP_ERROR_CHECK(MPU.initialize());
@@ -44,10 +45,10 @@ Gyro::Gyro(){
     // Self-Test
     mpud::selftest_t retSelfTest;
     while (esp_err_t err = MPU.selfTest(&retSelfTest)) {
-        ESP_LOGE(TAG, "Failed to perform MPU Self-Test, error=%#X", err);
+        ESP_LOGE(SPP_TAG, "Failed to perform MPU Self-Test, error=%#X", err);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
-    ESP_LOGI(TAG, "MPU Self-Test result: Gyro=%s Accel=%s",  //
+    ESP_LOGI(SPP_TAG, "MPU Self-Test result: Gyro=%s Accel=%s",  //
              (retSelfTest & mpud::SELF_TEST_GYRO_FAIL ? "FAIL" : "OK"),
              (retSelfTest & mpud::SELF_TEST_ACCEL_FAIL ? "FAIL" : "OK"));
 
@@ -66,7 +67,6 @@ Gyro::Gyro(){
     // Setup FIFO
     ESP_ERROR_CHECK(MPU.setFIFOConfig(mpud::FIFO_CFG_ACCEL | mpud::FIFO_CFG_GYRO));
     ESP_ERROR_CHECK(MPU.setFIFOEnabled(true));
-    constexpr uint16_t kFIFOPacketSize = 12;
 
     // Setup Interrupt
     constexpr gpio_config_t kGPIOConfig{
@@ -87,41 +87,98 @@ Gyro::Gyro(){
 
 }
 
-void Gyro::read(float * pitch_param, float* yaw_param, float* roll_param){
-	// Wait for notification from mpuISR
+void Gyro::update_yaw(float *yaw_param){
+	
+		// Wait for notification from mpuISR
     notificationValue = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     
     if (notificationValue > 1) {
-        ESP_LOGW(TAG, "Task Notification higher than 1, value: %d", notificationValue);
+        ESP_LOGW(SPP_TAG, "Task Notification higher than 1, value: %d", notificationValue);
         MPU.resetFIFO();
-        continue;
+        return;
     }
     // Check FIFO count
     fifocount = MPU.getFIFOCount();
     
     if (esp_err_t err = MPU.lastError()) {
-        ESP_LOGE(TAG, "Error reading fifo count, %#X", err);
+        ESP_LOGE(SPP_TAG, "Error reading fifo count, %#X", err);
         MPU.resetFIFO();
-        continue;
+        return;
     }
     
     if (fifocount > kFIFOPacketSize * 2) {
         if (!(fifocount % kFIFOPacketSize)) {
-            ESP_LOGE(TAG, "Sample Rate too high!, not keeping up the pace!, count: %d", fifocount);
+            ESP_LOGE(SPP_TAG, "Sample Rate too high!, not keeping up the pace!, count: %d", fifocount);
         }
         else {
-            ESP_LOGE(TAG, "FIFO Count misaligned! Expected: %d, Actual: %d", kFIFOPacketSize, fifocount);
+            ESP_LOGE(SPP_TAG, "FIFO Count misaligned! Expected: %d, Actual: %d", kFIFOPacketSize, fifocount);
         }
         MPU.resetFIFO();
-        continue;
+        return;
     }
     // Burst read data from FIFO
     uint8_t buffer[kFIFOPacketSize];
     if (esp_err_t err = MPU.readFIFO(kFIFOPacketSize, buffer)) {
-        ESP_LOGE(TAG, "Error reading sensor data, %#X", err);
+        ESP_LOGE(SPP_TAG, "Error reading sensor data, %#X", err);
         MPU.resetFIFO();
-        continue;
+        return;
     }
+
+	// Format
+    mpud::raw_axes_t rawGyro;
+    rawGyro.z  = buffer[10] << 8 | buffer[11];
+    // Calculate tilt angle
+    // range: (roll[-180,180]  pitch[-90,90]  yaw[-180,180])
+    constexpr float kDeltaTime = 1.f / kSampleRate;
+    gyroYaw = yaw + mpud::math::gyroDegPerSec(rawGyro.z, kGyroFS) * kDeltaTime;
+    yaw = gyroYaw;
+    // correct yaw
+    if (yaw > 180.f)
+        yaw -= 360.f;
+    else if (yaw < -180.f)
+        yaw += 360.f;
+
+    *yaw_param = yaw;
+}
+
+void Gyro::read(float * pitch_param, float* yaw_param, float* roll_param){
+
+	
+		// Wait for notification from mpuISR
+    notificationValue = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    
+    if (notificationValue > 1) {
+        ESP_LOGW(SPP_TAG, "Task Notification higher than 1, value: %d", notificationValue);
+        MPU.resetFIFO();
+        return;
+    }
+    // Check FIFO count
+    fifocount = MPU.getFIFOCount();
+    
+    if (esp_err_t err = MPU.lastError()) {
+        ESP_LOGE(SPP_TAG, "Error reading fifo count, %#X", err);
+        MPU.resetFIFO();
+        return;
+    }
+    
+    if (fifocount > kFIFOPacketSize * 2) {
+        if (!(fifocount % kFIFOPacketSize)) {
+            ESP_LOGE(SPP_TAG, "Sample Rate too high!, not keeping up the pace!, count: %d", fifocount);
+        }
+        else {
+            ESP_LOGE(SPP_TAG, "FIFO Count misaligned! Expected: %d, Actual: %d", kFIFOPacketSize, fifocount);
+        }
+        MPU.resetFIFO();
+        return;
+    }
+    // Burst read data from FIFO
+    uint8_t buffer[kFIFOPacketSize];
+    if (esp_err_t err = MPU.readFIFO(kFIFOPacketSize, buffer)) {
+        ESP_LOGE(SPP_TAG, "Error reading sensor data, %#X", err);
+        MPU.resetFIFO();
+        return;
+    }
+	
     // Format
     mpud::raw_axes_t rawAccel, rawGyro;
     rawAccel.x = buffer[0] << 8 | buffer[1];
@@ -153,4 +210,11 @@ void Gyro::read(float * pitch_param, float* yaw_param, float* roll_param){
     *yaw_param = yaw;
     *roll_param =roll;
 
+}
+
+static IRAM_ATTR void mpuISR(TaskHandle_t taskHandle)
+{
+    BaseType_t HPTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(taskHandle, &HPTaskWoken);
+    if (HPTaskWoken == pdTRUE) portYIELD_FROM_ISR();
 }
