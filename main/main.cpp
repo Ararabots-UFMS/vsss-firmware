@@ -33,7 +33,27 @@ extern "C" {
     void app_main();
 }
 
+void voltimetro(void * pvParamters){
+    Voltimetro voltimetro(R1,R2);
 
+    /* Select the GPIO to be used */
+    gpio_pad_select_gpio(SPEAKER_PIN);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(SPEAKER_PIN, GPIO_MODE_OUTPUT);
+
+
+    while(true){
+
+        // If the read voltage is less than 9 volts it activates the buzzer
+        if (voltimetro.getVoltage() < V_MIN) {
+            gpio_set_level(SPEAKER_PIN, HIGH);
+        }
+        else {
+            gpio_set_level(SPEAKER_PIN, LOW);
+        }
+        vTaskDelay(MEASURE_TIME);
+    }
+}
 
 void app_main(){
 
@@ -51,13 +71,9 @@ void app_main(){
     double KD = mem.read_memory(c);
 
     printf("%lf\n%lf\n%lf\n", KP,KI,KD);
-    // a = 947.1;
 
-    // mem.update_memory(b, a);
-    
-    // f = mem.read_memory(b);
 
-    // printf("%lf\n", f);
+    xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
 
     mem.close_handle();
 }

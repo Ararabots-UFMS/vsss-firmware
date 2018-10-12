@@ -26,3 +26,5 @@
 
 #define R1 100150
 #define R2 9910
+
+#define TASK_SIZE 40000
