@@ -1,9 +1,9 @@
 /*
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
+This example code is in the Public Domain (or CC0 licensed, at your option.)
 
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
+Unless required by applicable law or agreed to in writing, this
+software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied.
 */
 
 #define SPP_TAG "Eymael"
@@ -143,20 +143,32 @@ void voltimetro(void * pvParamters){
 }
 
 extern "C" {
-void app_main();
+    void app_main();
 }
 
-void app_main()
-{
+void voltimetro(void * pvParamters){
+    Voltimetro voltimetro(R1,R2);
 
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
+    /* Select the GPIO to be used */
+    gpio_pad_select_gpio(SPEAKER_PIN);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(SPEAKER_PIN, GPIO_MODE_OUTPUT);
+
+
+    while(true){
+
+        // If the read voltage is less than 9 volts it activates the buzzer
+        if (voltimetro.getVoltage() < V_MIN) {
+            gpio_set_level(SPEAKER_PIN, HIGH);
+        }
+        else {
+            gpio_set_level(SPEAKER_PIN, LOW);
+        }
+        vTaskDelay(MEASURE_TIME);
     }
-    ESP_ERROR_CHECK( ret );
+}
 
-    setup_bluetooth();
+void app_main(){
 
 	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
     xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
