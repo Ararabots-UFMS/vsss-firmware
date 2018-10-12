@@ -53,6 +53,8 @@
 
 #define TASK_SIZE 40000
 
+#define PIDERRO 0.5
+
 #ifndef __STRUCTS__
 #define __STRUCTS__
 typedef struct motorPackage{
@@ -60,7 +62,7 @@ typedef struct motorPackage{
 	uint8_t speed_l = 0; // Left speed
 	uint8_t direction = 0; // direcao das rodas
 	uint8_t speed_r = 0; // right speed
-	uint8_t control_type = 0; //0 angle and speed correction / 1 right speed and left speed
+	uint8_t control_type = 1; //0 angle and speed correction / 1 right speed and left speed
     uint8_t rotation_direction = 0; // 0 horario / 1 anti-horario
 } motorPackage;
 

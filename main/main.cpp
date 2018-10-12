@@ -36,8 +36,31 @@ Motor motor_right = Motor(BIN1, BIN2, PWMB, MOTOR_PWM_CHANNEL_B);
 
 uint8_t lastTheta = -1;
 uint8_t lastDirection = -1;
+uint8_t lastOrigin = 0;
 
-PIDCONTROLLER pid_controller = PIDCONTROLLER(1,0,0);
+PIDCONTROLLER pid_controller = PIDCONTROLLER(2,0,0.5);
+
+float ajust_set_point(int rotation_direction, float theta)
+{
+	if(rotation_direction)
+		return theta;
+	return -theta;
+}
+
+int ajust_direction(int speed)
+{
+    if(speed < 0){
+        return 1;
+    }
+    return 0;
+}
+int ajust_speed(int speed)
+{
+    if(abs(speed) < 255)
+        return abs(speed);
+    else
+        return 255;
+}
 
 void motor_control_task(void *pvParameter)
 {
@@ -61,32 +84,31 @@ void motor_control_task(void *pvParameter)
 			{
 				lastTheta = motor_package.theta;
 				lastDirection = motor_package.rotation_direction;
-
-				if(motor_package.rotation_direction) // Counter Clockwise
-    				pid_controller.setGoal(yaw + lastTheta);
-                else{
-                    pid_controller.setGoal(yaw - lastTheta);
-                }
+				lastOrigin = yaw;
+                pid_controller.setGoal(ajust_set_point(lastDirection, lastTheta));
 			}
-		    pid_controller.updateReading(yaw);
+		    pid_controller.updateReading(yaw - lastOrigin);
             pid = pid_controller.control();
-
-            if (motor_package.direction){// running backwards
-    			motor_left.enable(motor_package.speed_l+pid, motor_package.direction);
-    			motor_right.enable(motor_package.speed_r-pid, motor_package.direction);
-            }else{
-                motor_left.enable(motor_package.speed_l-pid, motor_package.direction);
-    			motor_right.enable(motor_package.speed_r+pid, motor_package.direction);
+            
+            if(abs(pid) < PIDERRO)
+            {
+                motor_left.enable(motor_package.speed_l, motor_package.direction);
+                motor_right.enable(motor_package.speed_r, motor_package.direction);
+            }
+            else
+            {
+                motor_left.enable(ajust_speed(motor_package.speed_l+pid), ajust_direction(motor_package.speed_l+pid));
+		       	motor_right.enable(ajust_speed(motor_package.speed_r-pid), ajust_direction(motor_package.speed_r-pid));  
             }
 
-            #ifdef DEBUG
-                newer = esp_timer_get_time();
-                if ((newer-last_time) > 50000){
-                    ESP_LOGW("Gyro:", "Yaw: %f" ,yaw);
-                    ESP_LOGI("PID:", " %f" ,pid);
-                    last_time = newer;
-                }
-            #endif
+                // #ifdef DEBUG
+            //     newer = esp_timer_get_time();
+            //     if ((newer-last_time) > 50000){
+            //         ESP_LOGW("Gyro:", "Yaw: %f" ,yaw);
+            //         ESP_LOGI("PID:", " %f %f %f" ,pid, motor_package.speed_l+pid, motor_package.speed_r-pid);
+            //         last_time = newer;
+            //     }
+            // #endif
 
         }
 		else
