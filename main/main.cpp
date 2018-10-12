@@ -30,18 +30,19 @@
 #include <gyro.h>
 
 struct motorPackage motor_package;
-struct controlPackage control_package; 
+struct controlPackage control_package;
 Motor motor_left = Motor(AIN1, AIN2, PWMA, MOTOR_PWM_CHANNEL_A);
 Motor motor_right = Motor(BIN1, BIN2, PWMB, MOTOR_PWM_CHANNEL_B);
 
 uint8_t lastTheta = -1;
 uint8_t lastDirection = -1;
 
-PIDCONTROLLER pid_controller = PIDCONTROLLER(0,0,0);
+PIDCONTROLLER pid_controller = PIDCONTROLLER(1,0,0);
 
 void motor_control_task(void *pvParameter)
 {
     float yaw;
+    float pid;
     auto gyro = Gyro();
 
     #ifdef DEBUG
@@ -52,28 +53,47 @@ void motor_control_task(void *pvParameter)
 	{
 		if(!motor_package.control_type)
 		{
-			//pid control
-			// if(motor_package.tetha != lastTheta || motor_package.direction != lastDirection)
-			// {
-				// lastTheta = motor_package.tetha;
-				// lastDirection = motor_package.direction;
-				// if(motor_package.direction)
-				// pid_controller.setGoal(######GIRO##### + (motor_package.direction - 1))
-			// }
-				// pid_controller.updateReading(####GIRO#####)
+
             gyro.update_yaw(&yaw);
+
+			//pid control
+			if(motor_package.theta != lastTheta || motor_package.rotation_direction != lastDirection)
+			{
+				lastTheta = motor_package.theta;
+				lastDirection = motor_package.rotation_direction;
+
+				if(motor_package.rotation_direction) // Counter Clockwise
+    				pid_controller.setGoal(yaw + lastTheta);
+                else{
+                    pid_controller.setGoal(yaw - lastTheta);
+                }
+			}
+		    pid_controller.updateReading(yaw);
+            pid = pid_controller.control();
+
+            if (motor_package.direction){// running backwards
+    			motor_left.enable(motor_package.speed_l+pid, motor_package.direction);
+    			motor_right.enable(motor_package.speed_r-pid, motor_package.direction);
+            }else{
+                motor_left.enable(motor_package.speed_l-pid, motor_package.direction);
+    			motor_right.enable(motor_package.speed_r+pid, motor_package.direction);
+            }
+
             #ifdef DEBUG
                 newer = esp_timer_get_time();
                 if ((newer-last_time) > 50000){
                     ESP_LOGW("Gyro:", "Yaw: %f" ,yaw);
+                    ESP_LOGI("PID:", " %f" ,pid);
                     last_time = newer;
                 }
-	        #endif   
-    	}
+            #endif
+
+        }
 		else
-		{	
+		{
+            //ESP_LOGW("Modo:", " Normal");
 			motor_left.enable(motor_package.speed_l, motor_package.direction >> 1);
-			motor_right.enable(motor_package.speed_r, motor_package.direction & 1);	
+			motor_right.enable(motor_package.speed_r, motor_package.direction & 1);
 		}
 	}
 }
@@ -114,7 +134,7 @@ void app_main()
     }
     ESP_ERROR_CHECK( ret );
 
-    //setup_bluetooth();
+    setup_bluetooth();
 
 	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
     xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);

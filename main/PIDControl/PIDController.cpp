@@ -43,9 +43,9 @@ float PIDCONTROLLER::control()
   // Salva o tempo do ultimo controle
   deltaT = lastTime;
   // Atualiza o tempo de controle para o tempo atual
-  updateTime();
-  // Normaliza o valor de deltaT, pois a leitura e feita em milisegundos
-  deltaT = (lastTime - deltaT) / 1000.0;
+  updateTime(esp_timer_get_time());
+  // Normaliza o valor de deltaT, pois a leitura e feita em microssegundos
+  deltaT = (lastTime - deltaT);
 
   // Calcula o erro
   error = goal - reading;
