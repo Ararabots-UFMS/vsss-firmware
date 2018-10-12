@@ -28,7 +28,7 @@
 #define HIGH	1
 #define LOW		0
 
-#define V_MIN 			9.0
+#define V_MIN 			9.9
 #define MEASURE_TIME 	60000 // 60 seconds in millis, delay measure takes a minute
 #define GPIO_PWM0A_OUT 	15
 
