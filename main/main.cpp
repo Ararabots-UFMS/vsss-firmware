@@ -52,24 +52,36 @@ void app_main()
     
     
     while(1){
-      enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_4, 1000000);
-      enable(LED_PIN, DUTY_CYCLE_50, FREQ_10, 2000000);
+      //enable(SPEAKER_PIN, DUTY_CYCLE_40, FREQ_6, 250000); //bt nao conectado
+      //enable(LED_PIN, DUTY_CYCLE_60, FREQ_2, 1000000);  //bt nao conectado
+      
+
+      //enable(LED_PIN, DUTY_CYCLE_50, FREQ_8, 750000);  //bt conectou
+      //enable(SPEAKER_PIN, DUTY_CYCLE_30, FREQ_6, 500000);   //4 bips curtos
+
+
+      //enable(SPEAKER_PIN, DUTY_CYCLE_80, FREQ_12, 10000000); //bateria fraca
+      //enable(LED_PIN, DUTY_CYCLE_50, FREQ_12, 10000000); //estrobo, bateria fraca      
+
+
+      //enable(LED_PIN, DUTY_CYCLE_100, FREQ_2, 3000000); //aceso tempo todo, gyro setup
+      //enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_12, 200000); //gyro ok 
+
+
+      //enable(LED_PIN, DUTY_CYCLE_50, FREQ_1, 500000); //blink medio, ler e gravar kP, Ki, Kd
+      //enable(SPEAKER_PIN, DUTY_CYCLE_30, FREQ_6, 500000);   //4 bips curtos
+
+
+      enable(LED_PIN, DUTY_CYCLE_30, FREQ_2, 250000); //blink curto, funcionamento
+
+
+      
     
       vTaskDelay(3000 / portTICK_PERIOD_MS);
     }
 
-    // thing enable = {LED_PIN, DUTY_CYCLE_50, FREQ_2};
-    // TaskHandle_t handler;
-
-    // xTaskCreate(thingEnable, "thingEnable", TASK_SIZE,(void*) &enable, 0,&handler);
-
-    // vTaskDelay(pdMS_TO_TICKS(5000));
-
-    // vTaskDelete(handler);
-
-
     //Voltimetro v = Voltimetro(1,2);
 
-   // Motor LMotor = Motor(GPIO_NUM_26, GPIO_NUM_33, GPIO_NUM_21, MOTOR_PWM_CHANNEL_LEFT);
+    // Motor LMotor = Motor(GPIO_NUM_26, GPIO_NUM_33, GPIO_NUM_21, MOTOR_PWM_CHANNEL_LEFT);
 
 }

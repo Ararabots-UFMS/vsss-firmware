@@ -44,6 +44,7 @@
 #define DUTY_CYCLE_80		0.8
 #define DUTY_CYCLE_100		1.0
 
+#define FREQ_1		1
 #define FREQ_2 		0.5
 #define FREQ_4		0.25
 #define FREQ_6		0.1667

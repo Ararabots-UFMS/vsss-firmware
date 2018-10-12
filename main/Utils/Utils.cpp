@@ -9,7 +9,7 @@
 void thingEnable(void* pvParameters){
 
     thing* enable = (thing*) pvParameters;
-    ESP_LOGE("","%d %f %f %lld ", enable->pin, enable->duty, enable->freq, enable->lifetime);
+    //ESP_LOGE("","%d %f %f %lld ", enable->pin, enable->duty, enable->freq, enable->lifetime);
     /* Select the GPIO to be used */
     gpio_pad_select_gpio(enable->pin);
     
@@ -47,7 +47,7 @@ void enable(gpio_num_t pino, float duty, float freq, long long int lifetime){
     enable->lifetime = lifetime;
 
 
-    ESP_LOGE("","%d %f %f %lld ", enable->pin, enable->duty, enable->freq, enable->lifetime);
+    //ESP_LOGE("","%d %f %f %lld ", enable->pin, enable->duty, enable->freq, enable->lifetime);
     
     /* task handle, so we can finish(delete) a task later*/
     TaskHandle_t handler;
