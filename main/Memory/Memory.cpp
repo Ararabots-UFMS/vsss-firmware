@@ -68,6 +68,13 @@ int Memory::delete_memory(char * key){
     return ((error != ESP_OK) ? FALSE : TRUE);
 }
 
+int Memory::open_handle(){
+	error = nvs_open("storage", NVS_READWRITE, handle);
+
+	if (error != ESP_OK)
+		printf("Error (%s) opening NVS handle\n", esp_err_to_name(error));
+}
+
 int Memory::close_handle(){
 	// Commit written value
 	error = nvs_commit(*handle);

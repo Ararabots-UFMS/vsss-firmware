@@ -28,8 +28,6 @@ static char angle[4][4] = {
 
 extern PIDCONTROLLER pid_controller;
 extern motorPackage motor_package;
-extern controlPackage control_package;
-
 
 void parser_params(uint8_t received_param){
 

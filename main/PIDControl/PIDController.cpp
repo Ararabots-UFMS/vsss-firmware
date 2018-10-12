@@ -3,7 +3,11 @@
 #endif
 
 #include <stdint.h>
+
+#include "Memory.h"
 //#include <Arduino.h>
+
+extern controlPackage control_package;
 
 PIDCONTROLLER::PIDCONTROLLER(float _kP, float _kI, float _kD)
 {
@@ -14,10 +18,24 @@ PIDCONTROLLER::PIDCONTROLLER(float _kP, float _kI, float _kD)
   previousReading = 0;
 }
 
+PIDCONTROLLER::PIDCONTROLLER()
+{
+  kP = mem.read_memory("KP");
+  kI = mem.read_memory("KI");
+  kD = mem.read_memory("KD");
+
+  previousReading = 0;
+}
+
+
 void PIDCONTROLLER::set_PID(float _kP, float _kI, float _kD){
   kP = _kP;
   kI = _kI;
-  kD = _kD;  
+  kD = _kD;
+  control_package.kP = _kP;
+  control_package.kI = _kI;
+  control_package.kD = _kD;
+
 }
 
 void PIDCONTROLLER::updateReading(float _reading)

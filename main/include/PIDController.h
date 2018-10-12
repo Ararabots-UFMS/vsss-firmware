@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "esp_timer.h"
+#include "memory.h"
 
 //#include <Arduino.h>
 
@@ -32,6 +33,7 @@ class PIDCONTROLLER
 
     // construtor
     PIDCONTROLLER(float _kI, float _kD, float _kP);
+    PIDCONTROLLER();
     // Atualiza a leitura
     void updateReading(float _reading);
     // Define o objetivo
