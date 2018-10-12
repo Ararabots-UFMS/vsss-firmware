@@ -8,23 +8,25 @@
 
 #define SPP_TAG "Eymael"
 
+
+
+
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-
 #include "PIDController.h"
-
 #include "bluetooth.h"
-
 #include "Motors.h"
 #include "Voltimetro.h"
 #include "time.h"
 #include "sys/time.h"
 #include "driver/mcpwm.h"
 #include "definitions.h"
+#include "driver/gpio.h"
+#include "Utils.h"
 #include "esp_log.h"
 struct motorPackage motor_package;
 struct controlPackage control_package; 
@@ -89,14 +91,24 @@ void app_main();
 void app_main()
 {
 
+
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK( ret );
+    // setup_bluetooth();
+  
+    
+    
+    while(1){
+      
 
-    setup_bluetooth();
+      
+    
+      vTaskDelay(3000 / portTICK_PERIOD_MS);
+    }
 
 	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
     xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
