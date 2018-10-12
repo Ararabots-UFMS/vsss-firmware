@@ -27,29 +27,37 @@ CONDITIONS OF ANY KIND, either express or implied.
 
 #include "definitions.h"
 
+#include "Memory.h"
+
 extern "C" {
     void app_main();
 }
 
-void voltimetro(void * pvParamters){
-    Voltimetro V(R1,R2);
 
-    V.perform_reading();
-}
 
 void app_main(){
 
-
-    xCreateTask(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL)
-    // Voltimetro a(R1,R2);
-    // while(1){
-    //     float f = a.getVoltage();
-    //     printf("Voltage: %f\n", f);
-    //     vTaskDelay(pdMS_TO_TICKS(1000));
-    // }
+    Memory mem = Memory();
     
-    // printf("Restarting now.\n");
-    // fflush(stdout);
-    // // esp_restart();
+    double valor_grande = 1231123.1231123;
+    char a[] = "KP";
+    char b[] = "KI";
+    char c[] = "KD";
+    //printf("%lf\n", a);
+    mem.update_memory(c, valor_grande);
 
+    double KP = mem.read_memory(a);
+    double KI = mem.read_memory(b);
+    double KD = mem.read_memory(c);
+
+    printf("%lf\n%lf\n%lf\n", KP,KI,KD);
+    // a = 947.1;
+
+    // mem.update_memory(b, a);
+    
+    // f = mem.read_memory(b);
+
+    // printf("%lf\n", f);
+
+    mem.close_handle();
 }
