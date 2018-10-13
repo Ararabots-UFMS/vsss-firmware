@@ -12,17 +12,16 @@ CONDITIONS OF ANY KIND, either express or implied.
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-
 #include "PIDController.h"
-
 #include "bluetooth.h"
-
 #include "Motors.h"
 #include "Voltimetro.h"
 #include "time.h"
 #include "sys/time.h"
 #include "driver/mcpwm.h"
 #include "definitions.h"
+#include "driver/gpio.h"
+#include "Utils.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include <gyro.h>
@@ -144,8 +143,10 @@ extern "C" {
     void app_main();
 }
 
+
 void app_main(){
     // Init nvs flash
+
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -156,7 +157,8 @@ void app_main(){
     pid_controller.load_params();
 
     setup_bluetooth();
-	//xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
+
+	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
     xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
 
 }
