@@ -11,6 +11,7 @@ static int first_operation = 0;
 static int second_operation = 0;
 static int sum_for_next_operation[4] = {0,MOTOR_VELOCITY_PARAM_1, SET_ANGLE_CORRECTION_THETA, SET_PID_KP};
 static int rotation_direction = 0;
+static float kp=.0, ki=.0, kd=.0;
 #ifdef DEBUG
 static char msg_walk[4][19] = {
 	"Andando pra frente",
@@ -30,6 +31,10 @@ extern PIDCONTROLLER pid_controller;
 extern motorPackage motor_package;
 
 void parser_params(uint8_t received_param){
+
+    #ifdef DEBUG
+        ESP_LOGW("I received:", "%d", received_param);
+    #endif
 
 	first_operation = current_state & 82; // 01010010
 	// Bit mask for reducing the if comparassions
@@ -94,12 +99,12 @@ void parser_params(uint8_t received_param){
 		case SET_PID_KP:
 			if (current_state == SET_PID_KP){
 				//ESP_LOGE("State:", "SET_PID_KP\n");
-				param1 = received_param;
+				kp = received_param;
 				current_state = SET_PID_KI;
 			}
 			else if (current_state == SET_PID_KI){
 				//ESP_LOGE("State:", "SET_PID_KI\n");
-				param2 = received_param;
+				ki = received_param;
 				current_state = SET_PID_KD;
 			}else{
 				#ifdef DEBUG

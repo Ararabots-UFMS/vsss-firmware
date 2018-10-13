@@ -20,12 +20,13 @@ class Memory{
 	public:
 		Memory();
 		double read_memory(char * key);
+        int open_handle();
 		int update_memory(char * key, double value);
 		int delete_memory(char * key);
 		int close_handle();
 		char * str_convert(double number);
 		double str_to_double(char * number);
-	
+
 };
 
 #endif

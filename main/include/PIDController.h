@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include "esp_timer.h"
-#include "memory.h"
+#include "Memory.h"
 
 //#include <Arduino.h>
 
@@ -22,6 +22,10 @@ class PIDCONTROLLER
     float D;
     float goal;
     float lastTime;
+    char  KP_Key[3] = "KP",
+          KI_Key[3] = "KI",
+          KD_Key[3] = "KD";
+    Memory* mem = NULL;
 
   public:
     // Constante da proporcional
@@ -34,15 +38,18 @@ class PIDCONTROLLER
     // construtor
     PIDCONTROLLER(float _kI, float _kD, float _kP);
     PIDCONTROLLER();
+
+    void  load_params();
+
     // Atualiza a leitura
     void updateReading(float _reading);
     // Define o objetivo
     void setGoal(float _goal = 0);
     // Atualiza a ultima vez em que foi executado
     void updateTime(unsigned long int t);
-    
+
     void set_PID(float,float,float);
-    
+
     // Retorna valor pwm
     float control();
 };

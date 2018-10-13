@@ -36,7 +36,7 @@ uint8_t lastTheta = -1;
 uint8_t lastDirection = -1;
 uint8_t lastOrigin = 0;
 
-PIDCONTROLLER pid_controller = PIDCONTROLLER(2,0,0.5);
+PIDCONTROLLER pid_controller = PIDCONTROLLER();
 
 float ajust_set_point(int rotation_direction, float theta)
 {
@@ -87,7 +87,7 @@ void motor_control_task(void *pvParameter)
 			}
 		    pid_controller.updateReading(yaw - lastOrigin);
             pid = pid_controller.control();
-            
+
             if(abs(pid) < PIDERRO)
             {
                 motor_left.enable(motor_package.speed_l, motor_package.direction);
@@ -96,7 +96,7 @@ void motor_control_task(void *pvParameter)
             else
             {
                 motor_left.enable(ajust_speed(motor_package.speed_l+pid), ajust_direction(motor_package.speed_l+pid));
-		       	motor_right.enable(ajust_speed(motor_package.speed_r-pid), ajust_direction(motor_package.speed_r-pid));  
+		       	motor_right.enable(ajust_speed(motor_package.speed_r-pid), ajust_direction(motor_package.speed_r-pid));
             }
 
                 // #ifdef DEBUG
@@ -144,31 +144,19 @@ extern "C" {
     void app_main();
 }
 
-void voltimetro(void * pvParamters){
-    Voltimetro voltimetro(R1,R2);
-
-    /* Select the GPIO to be used */
-    gpio_pad_select_gpio(SPEAKER_PIN);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(SPEAKER_PIN, GPIO_MODE_OUTPUT);
-
-
-    while(true){
-
-        // If the read voltage is less than 9 volts it activates the buzzer
-        if (voltimetro.getVoltage() < V_MIN) {
-            gpio_set_level(SPEAKER_PIN, HIGH);
-        }
-        else {
-            gpio_set_level(SPEAKER_PIN, LOW);
-        }
-        vTaskDelay(MEASURE_TIME);
-    }
-}
-
 void app_main(){
+    // Init nvs flash
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK( ret );
 
-	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
+    pid_controller.load_params();
+
+    setup_bluetooth();
+	//xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
     xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
 
 }

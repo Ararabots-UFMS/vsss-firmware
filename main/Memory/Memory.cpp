@@ -17,10 +17,7 @@
 Memory::Memory(){
 	// Create variable for access to storage of esp
 	handle =(nvs_handle *) malloc(sizeof(nvs_handle));
-	
-	// Init nvs flash
-	error = nvs_flash_init();
-
+    
 	// Open function of storage
 	error = nvs_open("storage", NVS_READWRITE, handle);
 
@@ -33,8 +30,8 @@ double Memory::read_memory(char * key){
 	char * memory = (char *) malloc(sizeof(char) * CHARACTER_SIZE);
 	// Set the first position with \0
 	memory[0] = 0;
-	
-	// Set the sizeof double in string 
+
+	// Set the sizeof double in string
 	size_t size = (sizeof(char) * CHARACTER_SIZE);
 
 	// Get value of memory
@@ -69,10 +66,15 @@ int Memory::delete_memory(char * key){
 }
 
 int Memory::open_handle(){
+
+    // Create variable for access to storage of esp
+    handle =(nvs_handle *) malloc(sizeof(nvs_handle));
 	error = nvs_open("storage", NVS_READWRITE, handle);
 
 	if (error != ESP_OK)
 		printf("Error (%s) opening NVS handle\n", esp_err_to_name(error));
+
+    return ((error != ESP_OK) ? FALSE : TRUE);
 }
 
 int Memory::close_handle(){
@@ -81,7 +83,7 @@ int Memory::close_handle(){
 
 	// Close handle
 	nvs_close(*handle);
-    
+
     return ((error != ESP_OK) ? FALSE : TRUE);
 }
 
