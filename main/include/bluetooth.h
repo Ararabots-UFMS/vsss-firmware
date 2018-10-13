@@ -11,9 +11,7 @@
 #include "parser.h"
 #include "freertos/FreeRTOS.h"
 
-#define SPP_TAG "Eymael"
-#define SPP_SERVER_NAME "SPP_SERVER"
-#define DEVICE_NAME "Eymael"
+#include <definitions.h>
 
 void esp_spp_cb(esp_spp_cb_event_t , esp_spp_cb_param_t *);
 void esp_bt_gap_cb(esp_bt_gap_cb_event_t , esp_bt_gap_cb_param_t *);

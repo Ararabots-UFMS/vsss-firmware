@@ -9,7 +9,7 @@
 
 Motor::Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_t _pwmChannel)
 {
-  
+
   // Atribuicao dos pinos
   in1 = _in1;
   in2 = _in2;

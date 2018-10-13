@@ -128,4 +128,3 @@ void setup_bluetooth(){
     esp_bt_gap_set_pin(pin_type, 0, pin_code);
 
 }
-
