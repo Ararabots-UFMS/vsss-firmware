@@ -135,7 +135,7 @@ void voltimetro(void * pvParamters){
         else {
             gpio_set_level(SPEAKER_PIN, LOW);
         }
-        vTaskDelay(MEASURE_TIME);
+        vTaskDelay(MEASURE_TIME/portTICK_PERIOD_MS);
     }
 }
 
