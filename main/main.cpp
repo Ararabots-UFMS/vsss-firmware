@@ -65,6 +65,7 @@ void motor_control_task(void *pvParameter)
     float pid;
     auto gyro = Gyro();
 
+
     #ifdef DEBUG
         long long int last_time = esp_timer_get_time(), newer;
     #endif
@@ -125,15 +126,24 @@ void voltimetro(void * pvParamters){
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(SPEAKER_PIN, GPIO_MODE_OUTPUT);
 
+    float measure;
+    //ESP_LOGI("Voltimetro","init");
 
-    while(true){
+    while(1){
 
         // If the read voltage is less than 9 volts it activates the buzzer
-        if (voltimetro.getVoltage() < V_MIN) {
-            gpio_set_level(SPEAKER_PIN, HIGH);
+        measure = voltimetro.getVoltage();        
+        ESP_LOGI("Voltimetro","%f", measure);
+
+        if (measure < V_MIN) {
+            // enable led and buzzer indicating low battery measure
+            // during a certain time, with a certain frequency
+            enable(SPEAKER_PIN, DUTY_CYCLE_30, FREQ_12, BUZZER_TIME);
+            enable(LED_PIN, DUTY_CYCLE_50, FREQ_12, BUZZER_TIME);
         }
         else {
             gpio_set_level(SPEAKER_PIN, LOW);
+            gpio_set_level(LED_PIN, LOW);
         }
         vTaskDelay(MEASURE_TIME/portTICK_PERIOD_MS);
     }
@@ -158,7 +168,7 @@ void app_main(){
 
     setup_bluetooth();
 
-	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 5, NULL, 1);
+	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 0, NULL, 1);
     xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
 
 }

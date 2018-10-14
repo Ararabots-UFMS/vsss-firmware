@@ -1,4 +1,6 @@
 #include "gyro.h"
+#include <definitions.h>
+#include <Utils.h>
 /* Bus configuration */
 
 // This MACROS are defined in "skdconfig.h" and set through 'menuconfig'.
@@ -85,7 +87,7 @@ Gyro::Gyro(){
     // Ready to start reading
     ESP_ERROR_CHECK(MPU.resetFIFO());  // start clean
 
-}
+    }
 
 void Gyro::update_yaw(float *yaw_param){
 	

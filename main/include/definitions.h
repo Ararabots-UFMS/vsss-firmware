@@ -49,8 +49,11 @@
 #define R1 100150
 #define R2 9910
 
-#define V_MIN 			9.9
+#define V_MIN 			10.000
 #define MEASURE_TIME 	60000 // 60 seconds in millis, delay measure takes a minute
+
+#define BUZZER_TIME 	20000000
+#define BT_TIME			300000
 
 #define DUTY_CYCLE_10		0.1
 #define DUTY_CYCLE_30		0.3
