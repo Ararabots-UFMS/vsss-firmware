@@ -52,10 +52,6 @@
 #define V_MIN 			9.9
 #define MEASURE_TIME 	60000 // 60 seconds in millis, delay measure takes a minute
 
-#define SDA					GPIO_NUM_16
-#define SCL					GPIO_NUM_5
-#define MPU6050_INTERRUPT	4
-
 #define DUTY_CYCLE_10		0.1
 #define DUTY_CYCLE_30		0.3
 #define DUTY_CYCLE_40		0.4
