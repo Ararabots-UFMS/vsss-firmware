@@ -1,4 +1,7 @@
 #include <bluetooth.h>
+#include <definitions.h>
+#include <Utils.h>
+
 
 static const esp_spp_mode_t esp_spp_mode = ESP_SPP_MODE_CB;
 static const esp_spp_sec_t sec_mask = ESP_SPP_SEC_AUTHENTICATE;
@@ -127,4 +130,9 @@ void setup_bluetooth(){
     esp_bt_pin_code_t pin_code;
     esp_bt_gap_set_pin(pin_type, 0, pin_code);
 
+
+    // enable led and buzzer indicating that the bluetooth setup was succesfully done
+    // during a certain time, with a certain frequency
+    enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
+    enable(LED_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
 }
