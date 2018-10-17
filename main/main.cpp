@@ -1,5 +1,3 @@
-#define SPP_TAG "Eymael"
-
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "freertos/FreeRTOS.h"
@@ -83,6 +81,7 @@ int ajust_speed(int speed)
 
 void motor_control_task(void *pvParameter)
 {
+    ESP_LOGW("Gyro:", "AaaaaaaaAAAAAAAA");
     // Task para a ativacao dos motores
     float yaw;
     float pid;
@@ -97,10 +96,20 @@ void motor_control_task(void *pvParameter)
 
     while(1)
     {
+        gyro.update_yaw(&yaw);
+        #ifdef DEBUG
+            newer = esp_timer_get_time();
+            if ((newer-last_time) > 50000){
+                ESP_LOGW("Gyro:", "Yaw: %f" ,yaw);
+                //ESP_LOGI("PID:", " %f %f %f" ,pid, motor_package.speed_l+pid, motor_package.speed_r-pid);
+                last_time = newer;
+            }
+        #endif
+        
         if(!motor_package.control_type) //Pacote para a correcao da direcao com pid 
         {
 
-            gyro.update_yaw(&yaw);
+
 
             //Pacote diferente
             if(motor_package.theta != lastTheta || motor_package.rotation_direction != lastDirection || motor_package.speed_l != lastSpeed)
@@ -184,6 +193,6 @@ void app_main(){
 
     setup_bluetooth();
 
-	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 0, NULL, 1);
+	xTaskCreatePinnedToCore(motor_control_task, "motor_control_task", 75000, NULL, 2, NULL, 1);
     xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
 }

@@ -126,7 +126,7 @@ void parser_params(uint8_t received_param){
 						ESP_LOGE("State:", "SET_PID: P:%f I:%f D:%f\n", *((float*)&kp), *((float*)&ki), *((float*)&kd));
 					#endif
 				}
-				//pid_controller.set_PID(param1,param2,received_param);
+				pid_controller.set_PID( *((float*)&kp), *((float*)&ki), *((float*)&kd));
 			}
 			break;
 
