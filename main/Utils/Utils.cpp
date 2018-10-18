@@ -28,9 +28,9 @@ void thingEnable(void* pvParameters){
 
       /* turn GPIO low to delete task */
     gpio_set_level(enable->pin, LOW);
-
-
     free(enable);
+
+    ESP_LOGE("","Terminei");
     /* delete the task */
     vTaskDelete(NULL);
 }
@@ -50,7 +50,7 @@ void enable(gpio_num_t pino, float duty, float freq, long long int lifetime){
     //ESP_LOGE("","%d %f %f %lld ", enable->pin, enable->duty, enable->freq, enable->lifetime);
 
     /* task handle, so we can finish(delete) a task later*/
-    TaskHandle_t handler;
+    //TaskHandle_t handler;
 
     /* create a task and start to execute */
     auto x = xTaskCreate(thingEnable, "thingEnable", DEFAULT_TASK_SIZE,(void*) enable, 0,&handler);

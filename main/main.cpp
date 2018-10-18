@@ -85,6 +85,7 @@ int ajust_speed(int speed)
 
 void motor_control_task(void *pvParameter)
 {
+    ESP_LOGW("Gyro:", "AaaaaaaaAAAAAAAA");
     // Task para a ativacao dos motores
     float yaw;
     float pid;
@@ -99,9 +100,20 @@ void motor_control_task(void *pvParameter)
 
     while(1)
     {
-        if(!motor_package.control_type) //Pacote para a correcao da direcao com pid
+        gyro.update_yaw(&yaw);
+        #ifdef DEBUG
+            newer = esp_timer_get_time();
+            if ((newer-last_time) > 50000){
+                ESP_LOGW("Gyro:", "Yaw: %f" ,yaw);
+                //ESP_LOGI("PID:", " %f %f %f" ,pid, motor_package.speed_l+pid, motor_package.speed_r-pid);
+                last_time = newer;
+            }
+        #endif
+        
+        if(!motor_package.control_type) //Pacote para a correcao da direcao com pid 
         {
-            gyro.update_yaw(&yaw);
+
+
 
             #ifdef DEBUG
               printf("MOTOR: PID CORRECTION: %u", motor_package.speed_l);

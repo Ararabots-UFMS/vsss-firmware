@@ -16,7 +16,6 @@ typedef struct {
 // FreeRTOS task that enables some pin passed as argument
 void thingEnable(void* pvParameters);
 
-
 // receive a GPIO pin, a duty cycle and frquency to enable that pin
 void enable(gpio_num_t pino, float duty, float freq, long long int lifetime);
 
