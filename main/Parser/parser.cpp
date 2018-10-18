@@ -3,15 +3,17 @@
 #include "esp_log.h"
 #include "PIDController.h"
 #include "state_machine_definitions.h"
+
 static int wheels_direction = 0;
 static int param1 = 0;
 static int param2 = 0;
 static int current_state = START;
 static int first_operation = 0;
 static int second_operation = 0;
-static int sum_for_next_operation[4] = {0,MOTOR_VELOCITY_PARAM_1, SET_ANGLE_CORRECTION_THETA, SET_PID_KP};
+static int sum_for_next_operation[4] = {START, MOTOR_VELOCITY_PARAM_1, SET_ANGLE_CORRECTION_THETA, SET_PID_KP};
 static int rotation_direction = 0;
 static uint32_t kp=0, ki=0, kd=0;
+
 #ifdef DEBUG
 static char msg_walk[4][19] = {
 	"Andando pra frente",
@@ -29,6 +31,7 @@ static char angle[4][4] = {
 
 extern PIDCONTROLLER pid_controller;
 extern motorPackage motor_package;
+extern TaskHandle_t motorTaskHandler;
 
 void parser_params(uint8_t received_param){
 
@@ -45,7 +48,7 @@ void parser_params(uint8_t received_param){
 			// sum_for_next_operation at position second_operation
 			// this allows for the code to jump to next state
 			wheels_direction = received_param & 3; // Wheels orientation
-            rotation_direction = received_param & 2;
+      rotation_direction = received_param & 2;
 			current_state = sum_for_next_operation[second_operation];
 			#ifdef DEBUG
 				ESP_LOGE("State:", "Start\n");
@@ -91,7 +94,7 @@ void parser_params(uint8_t received_param){
 				motor_package.speed_l = param2; // left speed
 				motor_package.direction = wheels_direction & 1; // Direction
 				motor_package.control_type = 0; // Old or new control type
-                motor_package.rotation_direction = rotation_direction >> 1;
+        motor_package.rotation_direction = rotation_direction >> 1;
 				current_state = START;
 			}
 			break;
