@@ -13,32 +13,33 @@
 #define DEVICE_NAME "Dumbo"
 
 // GYROSCOPE CONSTANTS
-#define GYRO_SDA_PIN GPIO_NUM_16
-#define GYRO_SCL_PIN GPIO_NUM_5
-#define GYRO_CLOCK_SPEED 400000
-#define GYRO_INT_PIN 4
-#define GYRO_SAMPLE_RATE 250
+#define GYRO_SDA_PIN 			GPIO_NUM_16
+#define GYRO_SCL_PIN 			GPIO_NUM_5
+#define GYRO_CLOCK_SPEED 	400000
+#define GYRO_INT_PIN 			4
+#define GYRO_SAMPLE_RATE 	250
 
 // MOTOR CLASS CONSTANTS
 #define PWM_FREQ 20000
 #define HORARIO 1
 #define ANTIHORARIO 0
 
-#define AIN1 GPIO_NUM_26
-#define AIN2 GPIO_NUM_25
-#define PWMA GPIO_NUM_32
+#define AIN1 								GPIO_NUM_26
+#define AIN2 								GPIO_NUM_25
+#define PWMA 								GPIO_NUM_32
 #define MOTOR_PWM_CHANNEL_A LEDC_CHANNEL_1
-#define BIN1 GPIO_NUM_27
-#define BIN2 GPIO_NUM_14
-#define PWMB GPIO_NUM_12
+#define BIN1 								GPIO_NUM_27
+#define BIN2 								GPIO_NUM_14
+#define PWMB								GPIO_NUM_12
 #define MOTOR_PWM_CHANNEL_B LEDC_CHANNEL_2
-#define MOTOR_PWM_TIMER LEDC_TIMER_1
-#define MOTOR_PWM_BIT_NUM LEDC_TIMER_8_BIT
+#define MOTOR_PWM_TIMER 		LEDC_TIMER_1
+#define MOTOR_PWM_BIT_NUM 	LEDC_TIMER_8_BIT
+#define MOTOR_TASK_STACK		8192
 
 #define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES   64          //Multisampling
 #define SPEAKER_PIN    	GPIO_NUM_19
-#define LED_PIN			GPIO_NUM_22
+#define LED_PIN					GPIO_NUM_22
 
 
 #define ADC_R1	100000  // 100K
@@ -51,6 +52,8 @@
 
 #define V_MIN 			10.000
 #define MEASURE_TIME 	60000 // 60 seconds in millis, delay measure takes a minute
+#define VOLTIMETER_TASK_STACK	2048
+
 
 #define BUZZER_TIME 	20000000
 #define BT_TIME			300000
@@ -61,7 +64,7 @@
 #define DUTY_CYCLE_50		0.5
 #define DUTY_CYCLE_60		0.6
 #define DUTY_CYCLE_80		0.8
-#define DUTY_CYCLE_100		1.0
+#define DUTY_CYCLE_100	1.0
 
 #define FREQ_1		1
 #define FREQ_2 		0.5
@@ -71,9 +74,9 @@
 #define FREQ_10		0.1
 #define FREQ_12		0.0833
 
-#define CORE_ZERO	0 
-#define CORE_ONE	1 
-#define TASK_SIZE 40000
+#define CORE_ZERO	0
+#define CORE_ONE	1
+#define DEFAULT_TASK_SIZE 512
 
 #define PIDERRO 0.5
 

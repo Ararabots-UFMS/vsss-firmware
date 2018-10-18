@@ -12,7 +12,7 @@ void thingEnable(void* pvParameters){
     //ESP_LOGE("","%d %f %f %lld ", enable->pin, enable->duty, enable->freq, enable->lifetime);
     /* Select the GPIO to be used */
     gpio_pad_select_gpio(enable->pin);
-    
+
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(enable->pin, GPIO_MODE_OUTPUT);
 
@@ -28,7 +28,7 @@ void thingEnable(void* pvParameters){
 
       /* turn GPIO low to delete task */
     gpio_set_level(enable->pin, LOW);
-    
+
 
     free(enable);
     /* delete the task */
@@ -37,7 +37,7 @@ void thingEnable(void* pvParameters){
 
 
 void enable(gpio_num_t pino, float duty, float freq, long long int lifetime){
-    
+
     /* struct to hold information about what will happen */
     thing* enable = (thing* ) malloc(sizeof(thing));
 
@@ -48,11 +48,13 @@ void enable(gpio_num_t pino, float duty, float freq, long long int lifetime){
 
 
     //ESP_LOGE("","%d %f %f %lld ", enable->pin, enable->duty, enable->freq, enable->lifetime);
-    
+
     /* task handle, so we can finish(delete) a task later*/
     TaskHandle_t handler;
 
     /* create a task and start to execute */
-    xTaskCreate(thingEnable, "thingEnable", TASK_SIZE,(void*) enable, 0,&handler);
-  
+    auto x = xTaskCreate(thingEnable, "thingEnable", DEFAULT_TASK_SIZE,(void*) enable, 0,&handler);
+
+    if(x != pdPASS) ESP_LOGE("THINGENABLE", "Error creating thread, ERR_CODE: #%X", x);
+
 }

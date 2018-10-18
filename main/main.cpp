@@ -1,5 +1,3 @@
-#define SPP_TAG "Eymael"
-
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "freertos/FreeRTOS.h"
@@ -19,6 +17,7 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include <gyro.h>
+#include <stdio.h>
 
 struct motorPackage motor_package;
 struct controlPackage control_package;
@@ -29,6 +28,9 @@ Motor motor_right = Motor(BIN1, BIN2, PWMB, MOTOR_PWM_CHANNEL_B);
 uint8_t lastTheta = -1;
 uint8_t lastDirection = -1;
 uint8_t lastSpeed = -1;
+
+// Desculpa
+TaskHandle_t motorTaskHandler;
 
 PIDCONTROLLER pid_controller = PIDCONTROLLER(3,0,0.5);
 
@@ -48,7 +50,7 @@ int diff_angle(float a, float b)
 
 float ajust_set_point(float yaw, int rotation_direction, float theta)
 {
-    // Ajuste de valor do set point 
+    // Ajuste de valor do set point
 	if(rotation_direction)//Sentido horario
     {
         if(yaw + theta > 180)
@@ -60,7 +62,7 @@ float ajust_set_point(float yaw, int rotation_direction, float theta)
         if(abs(yaw - theta) > 180)
             return yaw - theta + 360;
         return yaw - theta;
-    }	
+    }
 }
 
 int ajust_direction(int speed)
@@ -91,16 +93,19 @@ void motor_control_task(void *pvParameter)
     pid_controller.setGoal(0.0);
 
 
-    #ifdef DEBUG
-        long long int last_time = esp_timer_get_time(), newer;
-    #endif
+    // #ifdef DEBUG
+        // long long int last_time = esp_timer_get_time(), newer;
+    // #endif
 
     while(1)
     {
-        if(!motor_package.control_type) //Pacote para a correcao da direcao com pid 
+        if(!motor_package.control_type) //Pacote para a correcao da direcao com pid
         {
-
             gyro.update_yaw(&yaw);
+
+            #ifdef DEBUG
+              printf("MOTOR: PID CORRECTION: %u", motor_package.speed_l);
+            #endif
 
             //Pacote diferente
             if(motor_package.theta != lastTheta || motor_package.rotation_direction != lastDirection || motor_package.speed_l != lastSpeed)
@@ -109,11 +114,11 @@ void motor_control_task(void *pvParameter)
                 lastDirection = motor_package.rotation_direction;
                 lastSpeed = motor_package.speed_l;
                 set_point = ajust_set_point(yaw, lastDirection, lastTheta);
-			}
+			      }
 
-		    pid_controller.updateReading(diff_angle(yaw, set_point));
+		        pid_controller.updateReading(diff_angle(yaw, set_point));
             pid = pid_controller.control();
-            
+
             // Erro aceitavel pelo controlador
             if(abs(pid) < PIDERRO)
             {
@@ -123,14 +128,18 @@ void motor_control_task(void *pvParameter)
             else //correcao das velocidades dos motores
             {
                 motor_left.enable(ajust_speed(motor_package.speed_l-pid), ajust_direction(motor_package.speed_l-pid));
-		       	motor_right.enable(ajust_speed(motor_package.speed_r+pid), ajust_direction(motor_package.speed_r+pid));  
+		       	    motor_right.enable(ajust_speed(motor_package.speed_r+pid), ajust_direction(motor_package.speed_r+pid));
             }
         }
-		else //Pacote para envio das velocidades
-		{
-			motor_left.enable(motor_package.speed_l, motor_package.direction >> 1);
-			motor_right.enable(motor_package.speed_r, motor_package.direction & 1);
-		}
+    		else //Pacote para envio das velocidades
+    		{
+          #ifdef DEBUG
+            printf("MOTOR: LEFT WHEEL SPEED: %u", motor_package.speed_l);
+            printf("MOTOR: RIGHT WHEEL SPEED: %u", motor_package.speed_r);
+          #endif
+    			motor_left.enable(motor_package.speed_l, motor_package.direction >> 1);
+    			motor_right.enable(motor_package.speed_r, motor_package.direction & 1);
+    		}
 	}
 }
 
@@ -143,14 +152,11 @@ void voltimetro(void * pvParamters){
     gpio_set_direction(SPEAKER_PIN, GPIO_MODE_OUTPUT);
 
     float measure;
-    //ESP_LOGI("Voltimetro","init");
+    ESP_LOGI("Voltimetro","init");
 
     while(1){
-
+        measure = voltimetro.getVoltage();
         // If the read voltage is less than 9 volts it activates the buzzer
-        measure = voltimetro.getVoltage();        
-        ESP_LOGI("Voltimetro","%f", measure);
-
         if (measure < V_MIN) {
             // enable led and buzzer indicating low battery measure
             // during a certain time, with a certain frequency
@@ -184,6 +190,20 @@ void app_main(){
 
     setup_bluetooth();
 
-	xTaskCreatePinnedToCore(&motor_control_task, "motor_control_task", 75000, NULL, 0, NULL, 1);
-    xTaskCreate(voltimetro, "voltimetro", TASK_SIZE, NULL, 0, NULL);
+
+  auto x = xTaskCreatePinnedToCore(motor_control_task, "motor_control_task",
+                        MOTOR_TASK_STACK, NULL, 2, &motorTaskHandler, CORE_ONE);
+
+  if(x != pdPASS)
+  {
+    ESP_LOGE("MOTORS", "Error creating thread, ERR_CODE: #%X", x);
+  }
+
+  x = xTaskCreate(voltimetro, "voltimetro", VOLTIMETER_TASK_STACK, NULL, 1, NULL);
+
+  if(x != pdPASS)
+  {
+    ESP_LOGE("VOLTIMETER", "Error creating thread, ERR_CODE: #%X", x);
+  }
+
 }

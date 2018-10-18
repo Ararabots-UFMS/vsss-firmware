@@ -18,12 +18,12 @@ class Motor
     // 0 ANTIHORARIO
     // 1 HORARIO
     // -1 INICIALIZACAO
-    char sentidoAtual;
+    signed char sentidoAtual;
     // Inicializa o motor em ponto morto
     void init();
 
   public:
-    
+
 
     Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_t _pwmChannel);
 

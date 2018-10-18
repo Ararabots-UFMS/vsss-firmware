@@ -1,5 +1,6 @@
 #include <bluetooth.h>
 #include <definitions.h>
+#include <stdio.h>
 #include <Utils.h>
 
 
