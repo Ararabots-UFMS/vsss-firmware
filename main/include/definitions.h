@@ -5,12 +5,12 @@
 #include "driver/gpio.h"
 
 // Should debug?
-#define DEBUG
+ // #define DEBUG
 
 // Robot name and tag for debug
-#define SPP_TAG "Dumbo"
+#define SPP_TAG "ROBOT_NAME"
 #define SPP_SERVER_NAME "SPP_SERVER"
-#define DEVICE_NAME "Dumbo"
+#define DEVICE_NAME "ROBOT_NAME"
 
 // GYROSCOPE CONSTANTS
 #define GYRO_SDA_PIN 			GPIO_NUM_16
@@ -50,13 +50,13 @@
 #define R1 100150
 #define R2 9910
 
-#define V_MIN 			10.000
-#define MEASURE_TIME 	60000 // 60 seconds in millis, delay measure takes a minute
-#define VOLTIMETER_TASK_STACK	2048
+#define V_MIN                 10.000
+#define MEASURE_TIME          60000 // 60 seconds in millis, delay measure takes a minute
+#define VOLTIMETER_TASK_STACK 2048
 
 
 #define BUZZER_TIME 	20000000
-#define BT_TIME			300000
+#define BT_TIME			  300000
 
 #define DUTY_CYCLE_10		0.1
 #define DUTY_CYCLE_30		0.3
@@ -82,6 +82,7 @@
 
 #ifndef __STRUCTS__
 #define __STRUCTS__
+
 typedef struct motorPackage{
 	uint8_t theta = 0; // Angle
 	uint8_t speed_l = 0; // Left speed

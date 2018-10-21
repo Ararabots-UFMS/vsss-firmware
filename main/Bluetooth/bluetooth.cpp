@@ -1,3 +1,7 @@
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "freertos/task.h"
+
 #include <bluetooth.h>
 #include <definitions.h>
 #include <stdio.h>
@@ -7,6 +11,8 @@
 static const esp_spp_mode_t esp_spp_mode = ESP_SPP_MODE_CB;
 static const esp_spp_sec_t sec_mask = ESP_SPP_SEC_AUTHENTICATE;
 static const esp_spp_role_t role_slave = ESP_SPP_ROLE_SLAVE;
+
+extern SemaphoreHandle_t motorPackageSemaphore;
 
 void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
@@ -77,7 +83,7 @@ void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
 }
 
 void setup_bluetooth(){
-
+  xSemaphoreGive(motorPackageSemaphore);
 	esp_err_t ret;
 
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
@@ -134,6 +140,6 @@ void setup_bluetooth(){
 
     // enable led and buzzer indicating that the bluetooth setup was succesfully done
     // during a certain time, with a certain frequency
-    //enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
-    //enable(LED_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
+    enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
+    enable(LED_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
 }
