@@ -19,16 +19,19 @@ class Motor
     // 1 HORARIO
     // -1 INICIALIZACAO
     signed char sentidoAtual;
+    unsigned char currentSpeed;
+    int64_t lastEnableTime;
+
     // Inicializa o motor em ponto morto
     void init();
 
+    // Updates the time when motor is enabled
+    void updateTime(int64_t);
+
   public:
 
-
-    Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_t _pwmChannel);
-
-
-    void enable(unsigned char, bool);
+  Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_t _pwmChannel);
+  void enable(unsigned char, bool);
 };
 
 #endif

@@ -43,8 +43,10 @@ class PIDCONTROLLER
 
     // Atualiza a leitura
     void updateReading(float _reading);
+
     // Define o objetivo
     void setGoal(float _goal = 0);
+
     // Atualiza a ultima vez em que foi executado
     void updateTime(unsigned long int t);
 
