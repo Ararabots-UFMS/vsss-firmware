@@ -187,11 +187,12 @@ void motor_control_task(void *pvParameter)
           diff *= DEG2RAD;
           myYaw = warp2Pi(myYaw * DEG2RAD);
           pid_controller.setGoal(myYaw + diff);
+          printf("Atual: %f; Desejado: %f\n", myYaw*DEG2RAD, myYaw+diff);
         }
         pid_controller.updateReading(myYaw);
         pid = pid_controller.control();
-        motor_left.enable(myMotorPackage.speed_l-pid, myMotorPackage.direction >> 1);
-        motor_right.enable(myMotorPackage.speed_l+pid, myMotorPackage.direction & 1);
+        motor_left.enable((unsigned char) pid, 1);
+        motor_right.enable((unsigned char) pid, 0);
       }
     }
 

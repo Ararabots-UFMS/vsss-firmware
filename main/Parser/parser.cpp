@@ -94,7 +94,7 @@ void parser_params(uint8_t received_param){
 			}else{
 				param2 = received_param;
 				#ifdef DEBUG
-					ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n",param1, param2, angle[wheels_direction]);
+					ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n", param1, param2, angle[wheels_direction]);
 				#endif
 				// implementar robo autonomo sentido horario com wheel direction
 				parser_motor_package.packetID++;
@@ -137,7 +137,7 @@ void parser_params(uint8_t received_param){
 					current_state = START;
 					param1 = 0;
 					#ifdef DEBUG
-						ESP_LOGE("State:", "SET_PID: P:%f I:%f D:%f\n", *((float*)&kp), *((float*)&ki), *((float*)&kd));
+						ESP_LOGI("State:", "SET_PID: P:%f I:%f D:%f\n", *((float*)&kp), *((float*)&ki), *((float*)&kd));
 					#endif
 				}
 				pid_controller.set_PID(*((float*)&kp), *((float*)&ki), *((float*)&kd));
