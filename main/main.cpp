@@ -22,6 +22,8 @@
 #include <gyro.h>
 
 #define PIDCONTROL 0
+#define PI         3.14159265359
+#define DEG2RAD    0.01745329251
 
 struct motorPackage motor_package;
 struct controlPackage control_package;
@@ -133,8 +135,29 @@ void gyro_task(void*)
   }
 }
 
+float warp2Pi(float _theta)
+{
+  float theta = _theta;
+
+  if(theta > PI)
+  {
+    theta = theta - 2*PI;
+  }
+  else
+  {
+    if(theta < -PI)
+    {
+      theta = theta + 2*PI;
+    }
+  }
+
+  return theta;
+}
+
 void motor_control_task(void *pvParameter)
 {
+  unsigned long int lastPacket = 0;
+  float myYaw, diff, pid;
   motorPackage myMotorPackage;
   while(1)
   {
@@ -154,8 +177,21 @@ void motor_control_task(void *pvParameter)
       }
       else
       {
-        // TODO: controle PID
-
+        readYawFromGyro(&myYaw);
+        // Verifies if a new packet arrived
+        if(myMotorPackage.packetID != lastPacket)
+        {
+          lastPacket = myMotorPackage.packetID;
+          // If a new package arrived we must set our new goal
+          diff = (myMotorPackage.rotation_direction == 1) ? myMotorPackage.theta : -myMotorPackage.theta;
+          diff *= DEG2RAD;
+          myYaw = warp2Pi(myYaw * DEG2RAD);
+          pid_controller.setGoal(myYaw + diff);
+        }
+        pid_controller.updateReading(myYaw);
+        pid = pid_controller.control();
+        motor_left.enable(myMotorPackage.speed_l-pid, myMotorPackage.direction >> 1);
+        motor_right.enable(myMotorPackage.speed_l+pid, myMotorPackage.direction & 1);
       }
     }
 

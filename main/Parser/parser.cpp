@@ -73,6 +73,7 @@ void parser_params(uint8_t received_param){
 				#endif
 				param2 = received_param;
 				// MOTOR FORCE YEAH
+				parser_motor_package.packetID++;
 				parser_motor_package.direction = wheels_direction; // Direction
 				parser_motor_package.speed_l = param1; // Left speed
 				parser_motor_package.speed_r = param2; // right speed
@@ -96,6 +97,7 @@ void parser_params(uint8_t received_param){
 					ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n",param1, param2, angle[wheels_direction]);
 				#endif
 				// implementar robo autonomo sentido horario com wheel direction
+				parser_motor_package.packetID++;
 				parser_motor_package.theta = param1; // Left speed
 				parser_motor_package.speed_r = param2; // right speed
 				parser_motor_package.speed_l = param2; // left speed

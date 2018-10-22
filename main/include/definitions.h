@@ -85,6 +85,7 @@
 #define __STRUCTS__
 
 typedef struct motorPackage{
+	unsigned long int packetID = 0;
 	uint8_t theta = 0; // Angle
 	uint8_t speed_l = 0; // Left speed
 	uint8_t direction = 0; // direcao das rodas
