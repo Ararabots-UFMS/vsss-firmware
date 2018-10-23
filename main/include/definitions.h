@@ -8,9 +8,9 @@
 #define DEBUG
 
 // Robot name and tag for debug
-#define SPP_TAG "ROBOT_NAME"
-#define SPP_SERVER_NAME "SPP_SERVER"
-#define DEVICE_NAME "ROBOT_NAME"
+#define SPP_TAG					"LIA WARRIOR N"
+#define SPP_SERVER_NAME	"SPP_SERVER"
+#define DEVICE_NAME			"LIA WARRIOR N"
 
 // GYROSCOPE CONSTANTS
 #define GYRO_SDA_PIN 			GPIO_NUM_16
@@ -36,6 +36,7 @@
 #define MOTOR_PWM_BIT_NUM 	LEDC_TIMER_8_BIT
 #define MOTOR_TASK_STACK		8192
 #define MOTOR_MAX_EN_SPEED	70
+#define MOTOR_ACCELERATION	15
 
 #define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES   64          //Multisampling

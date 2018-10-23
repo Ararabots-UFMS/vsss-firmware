@@ -89,7 +89,7 @@ void Motor::enable(unsigned char _pwm, bool sentido)
       if(deltaT >= 50000) // deltaT > 50 milliseconds
       {
         updateTime(tNow);
-        pwm = (currentSpeed+15 >= _pwm) ? _pwm : pwm+10;
+        pwm = (currentSpeed+MOTOR_ACCELERATION >= _pwm) ? _pwm : pwm+MOTOR_ACCELERATION;
       }
     }
   }
@@ -108,4 +108,9 @@ void Motor::enable(unsigned char _pwm, bool sentido)
 void Motor::updateTime(int64_t t)
 {
   lastEnableTime = t;
+}
+
+unsigned char Motor::speed()
+{
+  return currentSpeed;
 }

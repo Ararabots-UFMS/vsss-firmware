@@ -96,3 +96,8 @@ float PIDCONTROLLER::control()
   // returns pwm control
   return P+I+D;
 }
+
+float PIDCONTROLLER::goal_()
+{
+  return goal;
+}

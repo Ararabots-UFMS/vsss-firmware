@@ -32,6 +32,8 @@ class Motor
 
   Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_t _pwmChannel);
   void enable(unsigned char, bool);
+
+  unsigned char speed();
 };
 
 #endif

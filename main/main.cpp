@@ -12,6 +12,7 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include <stdio.h>
+#include <math.h>
 
 #include "PIDController.h"
 #include "bluetooth.h"
@@ -157,7 +158,7 @@ float warp2Pi(float _theta)
 void motor_control_task(void *pvParameter)
 {
   unsigned long int lastPacket = 0;
-  float myYaw, diff, pid;
+  float myYaw, diff, pid, lSpeed, rSpeed;
   motorPackage myMotorPackage;
   while(1)
   {
@@ -183,16 +184,32 @@ void motor_control_task(void *pvParameter)
         {
           lastPacket = myMotorPackage.packetID;
           // If a new package arrived we must set our new goal
-          diff = (myMotorPackage.rotation_direction == 1) ? myMotorPackage.theta : -myMotorPackage.theta;
+          diff = (myMotorPackage.rotation_direction == 1) ? -myMotorPackage.theta : myMotorPackage.theta;
+
+          #ifndef DEBUG
+            ESP_LOGI("PID CONTROLLER", "rotation direction %u", myMotorPackage.rotation_direction);
+          #endif
+
           diff *= DEG2RAD;
           myYaw = warp2Pi(myYaw * DEG2RAD);
           pid_controller.setGoal(myYaw + diff);
-          printf("Atual: %f; Desejado: %f\n", myYaw*DEG2RAD, myYaw+diff);
         }
-        pid_controller.updateReading(myYaw);
+        pid_controller.updateReading(myYaw * DEG2RAD);
         pid = pid_controller.control();
-        motor_left.enable((unsigned char) pid, 1);
-        motor_right.enable((unsigned char) pid, 0);
+
+        lSpeed = myMotorPackage.speed_l-pid;
+        rSpeed = myMotorPackage.speed_r+pid;
+
+        #ifdef DEBUG
+          ESP_LOGI("PID CONTROLLER", "my Yaw %f Goal Yaw %f", myYaw*DEG2RAD, pid_controller.goal_());
+          ESP_LOGI("PID CONTROLLER", "LSPEED %f RSPEED %f", lSpeed, rSpeed);
+        #endif
+
+        motor_left.enable(fabs(lSpeed), lSpeed < 0 ?
+                      ~(myMotorPackage.direction >> 1) & 0x01 : (myMotorPackage.direction >> 1) & 0x01);
+
+        motor_right.enable(fabs(rSpeed), rSpeed < 0 ?
+                      (~myMotorPackage.direction) & 0x01 : myMotorPackage.direction & 0x01);
       }
     }
 
