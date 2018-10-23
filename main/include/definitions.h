@@ -35,6 +35,7 @@
 #define MOTOR_PWM_TIMER 		LEDC_TIMER_1
 #define MOTOR_PWM_BIT_NUM 	LEDC_TIMER_8_BIT
 #define MOTOR_TASK_STACK		8192
+#define MOTOR_MAX_EN_SPEED	70
 
 #define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES   64          //Multisampling
@@ -89,7 +90,7 @@ typedef struct motorPackage{
 	uint8_t direction = 0; // direcao das rodas
 	uint8_t speed_r = 0; // right speed
 	uint8_t control_type = 1; //0 angle and speed correction / 1 right speed and left speed
-    uint8_t rotation_direction = 0; // 0 horario / 1 anti-horario
+  uint8_t rotation_direction = 0; // 0 horario / 1 anti-horario
 } motorPackage;
 
 typedef struct controlPackage{
