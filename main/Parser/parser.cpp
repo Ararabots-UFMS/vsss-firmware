@@ -1,8 +1,11 @@
-#include "parser.h"
-#include "definitions.h"
 #include "esp_log.h"
+// #include "freertos/task.h"
+
 #include "PIDController.h"
 #include "state_machine_definitions.h"
+#include "parser.h"
+#include "definitions.h"
+
 
 static int wheels_direction = 0;
 static int param1 = 0;
@@ -30,8 +33,10 @@ static char angle[4][4] = {
 #endif
 
 extern PIDCONTROLLER pid_controller;
-extern motorPackage motor_package;
 extern TaskHandle_t motorTaskHandler;
+
+motorPackage parser_motor_package;
+extern void writeMotorPackage(motorPackage*);
 
 void parser_params(uint8_t received_param){
 
@@ -68,10 +73,12 @@ void parser_params(uint8_t received_param){
 				#endif
 				param2 = received_param;
 				// MOTOR FORCE YEAH
-				motor_package.direction = wheels_direction; // Direction
-				motor_package.speed_l = param1; // Left speed
-				motor_package.speed_r = param2; // right speed
-				motor_package.control_type = 1; // Old or new control type
+				parser_motor_package.direction = wheels_direction; // Direction
+				parser_motor_package.speed_l = param1; // Left speed
+				parser_motor_package.speed_r = param2; // right speed
+				parser_motor_package.control_type = 1; // Old or new control type
+				writeMotorPackage(&parser_motor_package);
+				xTaskNotifyGive(motorTaskHandler);
 				current_state = START;
 			}
 			break;
@@ -89,12 +96,14 @@ void parser_params(uint8_t received_param){
 					ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n",param1, param2, angle[wheels_direction]);
 				#endif
 				// implementar robo autonomo sentido horario com wheel direction
-				motor_package.theta = param1; // Left speed
-				motor_package.speed_r = param2; // right speed
-				motor_package.speed_l = param2; // left speed
-				motor_package.direction = wheels_direction & 1; // Direction
-				motor_package.control_type = 0; // Old or new control type
-        motor_package.rotation_direction = rotation_direction >> 1;
+				parser_motor_package.theta = param1; // Left speed
+				parser_motor_package.speed_r = param2; // right speed
+				parser_motor_package.speed_l = param2; // left speed
+				parser_motor_package.direction = wheels_direction & 1; // Direction
+				parser_motor_package.control_type = 0; // Old or new control type
+        parser_motor_package.rotation_direction = rotation_direction >> 1;
+				writeMotorPackage(&parser_motor_package);
+				xTaskNotifyGive(motorTaskHandler);
 				current_state = START;
 			}
 			break;

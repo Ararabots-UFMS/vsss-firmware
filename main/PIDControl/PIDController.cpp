@@ -32,9 +32,12 @@ void PIDCONTROLLER::set_PID(float _kP, float _kI, float _kD){
   kP = _kP;
   kI = _kI;
   kD = _kD;
+
+  // TODO: entender esse trecho
   control_package.KP = _kP;
   control_package.KI = _kI;
   control_package.KD = _kD;
+
   mem->open_handle();
   mem->update_memory(KP_Key, kP);
   mem->update_memory(KI_Key, kI);
