@@ -5,7 +5,7 @@
 #include "driver/gpio.h"
 
 // Should debug?
-// #define DEBUG
+#define DEBUG
 
 // Robot name and tag for debug
 #define SPP_TAG					"ROBOT NAME"
@@ -58,18 +58,22 @@
 
 
 #define BUZZER_TIME 	20000000
-#define BT_TIME			  300000
+#define NO_CONEC_TIME 	35000000
+#define GIRO_TIME		 800000
 
+#define DUTY_CYCLE_5		0.05
 #define DUTY_CYCLE_10		0.1
 #define DUTY_CYCLE_30		0.3
 #define DUTY_CYCLE_40		0.4
 #define DUTY_CYCLE_50		0.5
 #define DUTY_CYCLE_60		0.6
 #define DUTY_CYCLE_80		0.8
+#define DUTY_CYCLE_90		0.9
 #define DUTY_CYCLE_100	1.0
 
 #define FREQ_1		1
 #define FREQ_2 		0.5
+#define FREQ_3 		0.33
 #define FREQ_4		0.25
 #define FREQ_6		0.1667
 #define FREQ_8		0.125

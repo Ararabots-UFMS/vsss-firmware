@@ -1,6 +1,9 @@
 #include "gyro.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include <definitions.h>
 #include <Utils.h>
+
 /* Bus configuration */
 
 // This MACROS are defined in "skdconfig.h" and set through 'menuconfig'.
@@ -25,6 +28,7 @@ static constexpr mpud::int_config_t kInterruptConfig{
     .mode  = mpud::INT_MODE_PULSE50US,
     .clear = mpud::INT_CLEAR_STATUS_REG  //
 };
+
 
 /*-*/
 
@@ -53,6 +57,13 @@ Gyro::Gyro(){
     ESP_LOGI(SPP_TAG, "MPU Self-Test result: Gyro=%s Accel=%s",  //
              (retSelfTest & mpud::SELF_TEST_GYRO_FAIL ? "FAIL" : "OK"),
              (retSelfTest & mpud::SELF_TEST_ACCEL_FAIL ? "FAIL" : "OK"));
+
+
+    if(!(mpud::SELF_TEST_ACCEL_FAIL & mpud::SELF_TEST_GYRO_FAIL)){
+    
+        giroHandle = enable(SPEAKER_PIN, DUTY_CYCLE_10, FREQ_3, GIRO_TIME);
+
+    }
 
     // Calibrate
     mpud::raw_axes_t accelBias, gyroBias;
@@ -86,6 +97,7 @@ Gyro::Gyro(){
 
     // Ready to start reading
     ESP_ERROR_CHECK(MPU.resetFIFO());  // start clean
+
 
     }
 

@@ -17,4 +17,4 @@ typedef struct {
 void thingEnable(void* pvParameters);
 
 // receive a GPIO pin, a duty cycle and frquency to enable that pin
-void enable(gpio_num_t pino, float duty, float freq, long long int lifetime);
+TaskHandle_t enable(gpio_num_t pino, float duty, float freq, long long int lifetime);

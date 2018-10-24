@@ -41,6 +41,8 @@ class Gyro
 		  accelPitch;
 	// End of reading variables
 
+	TaskHandle_t giroHandle;
+
 	I2C_t& i2c = i2c0; // Port of gyroscope, can be 0 or 1
 
 public:
