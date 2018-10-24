@@ -5,12 +5,12 @@
 #include "driver/gpio.h"
 
 // Should debug?
-#define DEBUG
+// #define DEBUG
 
 // Robot name and tag for debug
-#define SPP_TAG					"LIA WARRIOR N"
+#define SPP_TAG					"ROBOT NAME"
 #define SPP_SERVER_NAME	"SPP_SERVER"
-#define DEVICE_NAME			"LIA WARRIOR N"
+#define DEVICE_NAME			"ROBOT NAME"
 
 // GYROSCOPE CONSTANTS
 #define GYRO_SDA_PIN 			GPIO_NUM_16

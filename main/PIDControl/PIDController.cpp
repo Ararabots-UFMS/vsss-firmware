@@ -67,9 +67,9 @@ void  PIDCONTROLLER::load_params(){
     kI = mem->read_memory(KI_Key);
     kD = mem->read_memory(KD_Key);
     mem->close_handle();
-    #ifdef DEBUG
+    // #ifdef DEBUG
         ESP_LOGI("PID","P:%f I:%f D:%f",kP,kI,kD);
-    #endif
+    // #endif
 }
 
 float PIDCONTROLLER::control()
