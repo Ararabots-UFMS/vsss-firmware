@@ -90,10 +90,10 @@ Gyro::Gyro(){
     }
 
 void Gyro::update_yaw(float *yaw_param){
-	
+
 		// Wait for notification from mpuISR
     notificationValue = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    
+
     if (notificationValue > 1) {
         ESP_LOGW(SPP_TAG, "Task Notification higher than 1, value: %d", notificationValue);
         MPU.resetFIFO();
@@ -101,13 +101,13 @@ void Gyro::update_yaw(float *yaw_param){
     }
     // Check FIFO count
     fifocount = MPU.getFIFOCount();
-    
+
     if (esp_err_t err = MPU.lastError()) {
         ESP_LOGE(SPP_TAG, "Error reading fifo count, %#X", err);
         MPU.resetFIFO();
         return;
     }
-    
+
     if (fifocount > kFIFOPacketSize * 2) {
         if (!(fifocount % kFIFOPacketSize)) {
             ESP_LOGE(SPP_TAG, "Sample Rate too high!, not keeping up the pace!, count: %d", fifocount);
@@ -135,20 +135,20 @@ void Gyro::update_yaw(float *yaw_param){
     gyroYaw = yaw + mpud::math::gyroDegPerSec(rawGyro.z, kGyroFS) * kDeltaTime;
     yaw = gyroYaw;
     // correct yaw
-    if (yaw > 180.f)
-        yaw -= 360.f;
-    else if (yaw < -180.f)
-        yaw += 360.f;
+    // if (yaw > 180.f)
+        // yaw -= 360.f;
+    // else if (yaw < -180.f)
+        // yaw += 360.f;
 
     *yaw_param = yaw;
 }
 
 void Gyro::read(float * pitch_param, float* yaw_param, float* roll_param){
 
-	
+
 		// Wait for notification from mpuISR
     notificationValue = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    
+
     if (notificationValue > 1) {
         ESP_LOGW(SPP_TAG, "Task Notification higher than 1, value: %d", notificationValue);
         MPU.resetFIFO();
@@ -156,13 +156,13 @@ void Gyro::read(float * pitch_param, float* yaw_param, float* roll_param){
     }
     // Check FIFO count
     fifocount = MPU.getFIFOCount();
-    
+
     if (esp_err_t err = MPU.lastError()) {
         ESP_LOGE(SPP_TAG, "Error reading fifo count, %#X", err);
         MPU.resetFIFO();
         return;
     }
-    
+
     if (fifocount > kFIFOPacketSize * 2) {
         if (!(fifocount % kFIFOPacketSize)) {
             ESP_LOGE(SPP_TAG, "Sample Rate too high!, not keeping up the pace!, count: %d", fifocount);
@@ -180,7 +180,7 @@ void Gyro::read(float * pitch_param, float* yaw_param, float* roll_param){
         MPU.resetFIFO();
         return;
     }
-	
+
     // Format
     mpud::raw_axes_t rawAccel, rawGyro;
     rawAccel.x = buffer[0] << 8 | buffer[1];

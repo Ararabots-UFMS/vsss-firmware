@@ -5,12 +5,12 @@
 #include "driver/gpio.h"
 
 // Should debug?
- // #define DEBUG
+// #define DEBUG
 
 // Robot name and tag for debug
-#define SPP_TAG "ROBOT_NAME"
-#define SPP_SERVER_NAME "SPP_SERVER"
-#define DEVICE_NAME "ROBOT_NAME"
+#define SPP_TAG					"ROBOT NAME"
+#define SPP_SERVER_NAME	"SPP_SERVER"
+#define DEVICE_NAME			"ROBOT NAME"
 
 // GYROSCOPE CONSTANTS
 #define GYRO_SDA_PIN 			GPIO_NUM_16
@@ -36,6 +36,7 @@
 #define MOTOR_PWM_BIT_NUM 	LEDC_TIMER_8_BIT
 #define MOTOR_TASK_STACK		8192
 #define MOTOR_MAX_EN_SPEED	70
+#define MOTOR_ACCELERATION	15
 
 #define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES   64          //Multisampling
@@ -91,6 +92,7 @@ typedef struct motorPackage{
 	uint8_t speed_r = 0; // right speed
 	uint8_t control_type = 1; //0 angle and speed correction / 1 right speed and left speed
   uint8_t rotation_direction = 0; // 0 horario / 1 anti-horario
+	unsigned long int packetID = 0;
 } motorPackage;
 
 typedef struct controlPackage{

@@ -47,6 +47,9 @@ class PIDCONTROLLER
     // Define o objetivo
     void setGoal(float _goal = 0);
 
+    // Retorna o objetivo
+    float goal_();
+
     // Atualiza a ultima vez em que foi executado
     void updateTime(unsigned long int t);
 

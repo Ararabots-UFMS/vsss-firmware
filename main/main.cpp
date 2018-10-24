@@ -12,6 +12,7 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include <stdio.h>
+#include <math.h>
 
 #include "PIDController.h"
 #include "bluetooth.h"
@@ -22,6 +23,8 @@
 #include <gyro.h>
 
 #define PIDCONTROL 0
+#define PI         3.14159265359
+#define DEG2RAD    0.01745329251
 
 struct motorPackage motor_package;
 struct controlPackage control_package;
@@ -133,8 +136,30 @@ void gyro_task(void*)
   }
 }
 
+float warp2Pi(float _theta)
+{
+  float theta = _theta;
+
+  if(theta > PI)
+  {
+    theta = theta - 2*PI;
+  }
+  else
+  {
+    if(theta < -PI)
+    {
+      theta = theta + 2*PI;
+    }
+  }
+
+  return theta;
+}
+
 void motor_control_task(void *pvParameter)
 {
+  unsigned long int lastPacket = 0;
+  float myYaw, diff, pid, lSpeed, rSpeed;
+  bool lDirection, rDirection;
   motorPackage myMotorPackage;
   while(1)
   {
@@ -154,8 +179,40 @@ void motor_control_task(void *pvParameter)
       }
       else
       {
-        // TODO: controle PID
+        readYawFromGyro(&myYaw);
+        // Verifies if a new packet arrived
+        if(myMotorPackage.packetID != lastPacket)
+        {
+          lastPacket = myMotorPackage.packetID;
+          // If a new package arrived we must set our new goal
+          diff = (myMotorPackage.rotation_direction == 1) ? -myMotorPackage.theta : myMotorPackage.theta;
+          pid_controller.setGoal(myYaw + diff);
+        }
+        pid_controller.updateReading(myYaw);
+        pid = pid_controller.control();
 
+        lSpeed = myMotorPackage.speed_l - pid;
+        rSpeed = myMotorPackage.speed_r + pid;
+
+        lDirection = lSpeed < 0 ? ~(myMotorPackage.direction >> 1) & 0x01 :
+                    (myMotorPackage.direction >> 1) & 0x01;
+
+        rDirection = rSpeed < 0 ? (~myMotorPackage.direction) & 0x01 :
+                    myMotorPackage.direction & 0x01;
+
+        lSpeed = fabs(lSpeed);
+        rSpeed = fabs(rSpeed);
+
+        lSpeed = lSpeed <= 255 ? lSpeed : 255;
+        rSpeed = rSpeed <= 255 ? rSpeed : 255;
+
+        #ifdef DEBUG
+          ESP_LOGI("PID CONTROLLER", "my Yaw %f Goal Yaw %f", myYaw, pid_controller.goal_());
+          ESP_LOGI("PID CONTROLLER", "LSPEED %f RSPEED %f", lSpeed, rSpeed);
+        #endif
+
+        motor_left.enable(lSpeed, lDirection);
+        motor_right.enable(rSpeed, rDirection);
       }
     }
 
