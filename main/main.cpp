@@ -174,8 +174,8 @@ void motor_control_task(void *pvParameter)
           ESP_LOGI("MOTOR", "LEFT WHEEL SPEED: %u", myMotorPackage.speed_l);
           ESP_LOGI("MOTOR", "RIGHT WHEEL SPEED: %u", myMotorPackage.speed_r);
         #endif
-        motor_left.enable(myMotorPackage.speed_l, myMotorPackage.direction >> 1);
-        motor_right.enable(myMotorPackage.speed_r, myMotorPackage.direction & 1);
+        motor_left.enable(myMotorPackage.speed_l, myMotorPackage.wheels_direction >> 1);
+        motor_right.enable(myMotorPackage.speed_r, myMotorPackage.wheels_direction & 1);
       }
       else
       {
@@ -185,7 +185,7 @@ void motor_control_task(void *pvParameter)
         {
           lastPacket = myMotorPackage.packetID;
           // If a new package arrived we must set our new goal
-          diff = (myMotorPackage.rotation_direction == 1) ? -myMotorPackage.theta : myMotorPackage.theta;
+          diff = (myMotorPackage.rotation_direction == 1) ? myMotorPackage.theta : -myMotorPackage.theta;
           pid_controller.setGoal(myYaw + diff);
         }
         pid_controller.updateReading(myYaw);
@@ -194,11 +194,8 @@ void motor_control_task(void *pvParameter)
         lSpeed = myMotorPackage.speed_l - pid;
         rSpeed = myMotorPackage.speed_r + pid;
 
-        lDirection = lSpeed < 0 ? ~(myMotorPackage.direction >> 1) & 0x01 :
-                    (myMotorPackage.direction >> 1) & 0x01;
-
-        rDirection = rSpeed < 0 ? (~myMotorPackage.direction) & 0x01 :
-                    myMotorPackage.direction & 0x01;
+        lDirection = lSpeed < 0 ? 1 : 0;
+        rDirection = rSpeed < 0 ? 1 : 0;
 
         lSpeed = fabs(lSpeed);
         rSpeed = fabs(rSpeed);

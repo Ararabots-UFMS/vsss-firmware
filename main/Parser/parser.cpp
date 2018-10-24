@@ -74,7 +74,7 @@ void parser_params(uint8_t received_param){
 				param2 = received_param;
 				// MOTOR FORCE YEAH
 				parser_motor_package.packetID++;
-				parser_motor_package.direction = wheels_direction; // Direction
+				parser_motor_package.wheels_direction = wheels_direction; // Direction
 				parser_motor_package.speed_l = param1; // Left speed
 				parser_motor_package.speed_r = param2; // right speed
 				parser_motor_package.control_type = 1; // Old or new control type
@@ -101,7 +101,7 @@ void parser_params(uint8_t received_param){
 				parser_motor_package.theta = param1; // Left speed
 				parser_motor_package.speed_r = param2; // right speed
 				parser_motor_package.speed_l = param2; // left speed
-				parser_motor_package.direction = wheels_direction & 1; // Direction
+				parser_motor_package.wheels_direction = wheels_direction & 1; // Direction
 				parser_motor_package.control_type = 0; // Old or new control type
         parser_motor_package.rotation_direction = rotation_direction >> 1;
 				writeMotorPackage(&parser_motor_package);
