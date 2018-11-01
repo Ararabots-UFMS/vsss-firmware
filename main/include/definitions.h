@@ -8,9 +8,9 @@
 // #define DEBUG
 
 // Robot name and tag for debug
-#define SPP_TAG					"ROBOT NAME"
+#define SPP_TAG					"UMBABARAUMA"
 #define SPP_SERVER_NAME	"SPP_SERVER"
-#define DEVICE_NAME			"ROBOT NAME"
+#define DEVICE_NAME			"UMBABARAUMA"
 
 // GYROSCOPE CONSTANTS
 #define GYRO_SDA_PIN 			GPIO_NUM_16

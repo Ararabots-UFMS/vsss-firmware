@@ -43,55 +43,6 @@ TaskHandle_t motorTaskHandler;
 
 PIDCONTROLLER pid_controller = PIDCONTROLLER(3,0,0.5);
 
-int modulus(int a, int b)
-{
-    // Modulo para manter o mesmo sinal do modulo
-    return (a % b + b) % b;
-}
-
-int diff_angle(float a, float b)
-{
-    // Diferença de angulo entre A e B
-    int tmp;
-    tmp = a - b;
-    return modulus((tmp + 180), 360) - 180;
-}
-
-float ajust_set_point(float yaw, int rotation_direction, float theta)
-{
-    // Ajuste de valor do set point
-	if(rotation_direction)//Sentido horario
-    {
-        if(yaw + theta > 180)
-            return yaw + theta - 360;
-        return yaw + theta;
-    }
-    else// Sentido anti-horario
-    {
-        if(abs(yaw - theta) > 180)
-            return yaw - theta + 360;
-        return yaw - theta;
-    }
-}
-
-int ajust_direction(int speed)
-{
-    //Ajuste de direão das rodas
-    if(speed < 0){
-        return 1;
-    }
-    return 0;
-}
-
-int ajust_speed(int speed)
-{
-    //Limite de valocidade maxima
-    if(abs(speed) < 255)
-        return abs(speed);
-    else
-        return 255;
-}
-
 void readYawFromGyro(float *_yaw)
 {
   xSemaphoreTake(yawSemaphore, 1.0 /portTICK_PERIOD_MS);
@@ -136,29 +87,11 @@ void gyro_task(void*)
   }
 }
 
-float warp2Pi(float _theta)
-{
-  float theta = _theta;
-
-  if(theta > PI)
-  {
-    theta = theta - 2*PI;
-  }
-  else
-  {
-    if(theta < -PI)
-    {
-      theta = theta + 2*PI;
-    }
-  }
-
-  return theta;
-}
-
 void motor_control_task(void *pvParameter)
 {
   unsigned long int lastPacket = 0;
   float myYaw, diff, pid, lSpeed, rSpeed;
+  float speed = 0;
   bool lDirection, rDirection;
   motorPackage myMotorPackage;
   while(1)
@@ -187,15 +120,17 @@ void motor_control_task(void *pvParameter)
           // If a new package arrived we must set our new goal
           diff = (myMotorPackage.rotation_direction == 1) ? myMotorPackage.theta : -myMotorPackage.theta;
           pid_controller.setGoal(myYaw + diff);
+          speed = myMotorPackage.speed_l;
         }
+
         pid_controller.updateReading(myYaw);
         pid = pid_controller.control();
 
-        lSpeed = myMotorPackage.speed_l - pid;
-        rSpeed = myMotorPackage.speed_r + pid;
+        lSpeed = speed - pid;
+        rSpeed = speed + pid;
 
-        lDirection = lSpeed < 0 ? 1 : 0;
-        rDirection = rSpeed < 0 ? 1 : 0;
+        lDirection = lSpeed < 0 ? ~myMotorPackage.wheels_direction & 0x01 : myMotorPackage.wheels_direction & 0x01;
+        rDirection = rSpeed < 0 ? ~myMotorPackage.wheels_direction & 0x01 : myMotorPackage.wheels_direction & 0x01;
 
         lSpeed = fabs(lSpeed);
         rSpeed = fabs(rSpeed);
