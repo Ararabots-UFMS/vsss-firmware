@@ -23,10 +23,6 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         esp_bt_dev_set_device_name(DEVICE_NAME);
         esp_bt_gap_set_scan_mode(ESP_BT_SCAN_MODE_CONNECTABLE_DISCOVERABLE);
         esp_spp_start_srv(sec_mask,role_slave, 0, SPP_SERVER_NAME);
-        //
-
-        //enable(SPEAKER_PIN, DUTY_CYCLE_5, FREQ_2, NO_CONEC_TIME);
-        // bt_handle = enable(LED_PIN, DUTY_CYCLE_50, FREQ_10, NO_CONEC_TIME);
 
         break;
     case ESP_SPP_DISCOVERY_COMP_EVT:
@@ -38,6 +34,7 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_CLOSE_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_CLOSE_EVT");
+        bt_handle = enable(LED_PIN, DUTY_CYCLE_40, FREQ_2, 0);
         break;
     case ESP_SPP_START_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_START_EVT");
@@ -59,7 +56,7 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
-        // vTaskDelete(bt_handle);
+        vTaskDelete(bt_handle);
         gpio_set_level(LED_PIN, LOW);
         //gettimeofday(&time_old, NULL);
         break;
@@ -152,6 +149,7 @@ void setup_bluetooth(){
 
     // enable led and buzzer indicating that the bluetooth setup was succesfully done
     // during a certain time, with a certain frequency
+    bt_handle = enable(LED_PIN, DUTY_CYCLE_40, FREQ_2, 0);
     //enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_2, BT_TIME);
     //enable(LED_PIN, DUTY_CYCLE_50, FREQ_2, BT_TIME);
 }

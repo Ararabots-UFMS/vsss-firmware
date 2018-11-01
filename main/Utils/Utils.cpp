@@ -17,12 +17,17 @@ void thingEnable(void* pvParameters){
     gpio_set_direction(enable->pin, GPIO_MODE_OUTPUT);
 
     long long int last_time = esp_timer_get_time();
-    while(esp_timer_get_time() - last_time < enable->lifetime) {
+    bool condition = enable->lifetime != 0 ? esp_timer_get_time() - last_time < enable->lifetime : true;
+    while(condition == true)
+    {
         /* Turn ON (output HIGH) */
         gpio_set_level(enable->pin, HIGH);
         vTaskDelay(1000*enable->duty*enable->freq / portTICK_PERIOD_MS);
         /* Turn OFF (output LOW) */
         gpio_set_level(enable->pin, LOW);
+
+        condition = enable->lifetime != 0 ? esp_timer_get_time() - last_time < enable->lifetime : true;
+
         vTaskDelay(1000*(1.0-enable->duty)*enable->freq / portTICK_PERIOD_MS);
     }
 
@@ -36,7 +41,10 @@ void thingEnable(void* pvParameters){
 }
 
 
-TaskHandle_t enable(gpio_num_t pino, float duty, float freq, long long int lifetime){
+// Lifetime is the period in microseconds that the thread should execute
+// For convention if lifetime is zero, then the thread should execute forever
+TaskHandle_t enable(gpio_num_t pino, float duty, float freq, long long int lifetime)
+{
 
     /* struct to hold information about what will happen */
     thing* enable = (thing* ) malloc(sizeof(thing));

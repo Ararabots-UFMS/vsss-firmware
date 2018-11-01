@@ -277,9 +277,6 @@ void app_main()
 
   pid_controller.load_params();
 
-
-
-
   auto x = xTaskCreatePinnedToCore(gyro_task, "gyro_task",
                      4*DEFAULT_TASK_SIZE, NULL, 2, NULL, CORE_ONE);
   if(x != pdPASS)
