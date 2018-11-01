@@ -147,6 +147,7 @@ void parser_params(uint8_t received_param){
 		default:
 			// tratamento de exceção
 			ESP_LOGE("PARSER ERROR", "Current State: %d F:%d S:%d WD:%d\n", current_state, first_operation, second_operation,wheels_direction);
+			current_state = START;
 			break;
 	}
 }

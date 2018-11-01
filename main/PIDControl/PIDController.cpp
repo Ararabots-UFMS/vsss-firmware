@@ -67,21 +67,21 @@ void  PIDCONTROLLER::load_params(){
     kI = mem->read_memory(KI_Key);
     kD = mem->read_memory(KD_Key);
     mem->close_handle();
-    // #ifdef DEBUG
-        ESP_LOGI("PID","P:%f I:%f D:%f",kP,kI,kD);
-    // #endif
+    #ifdef DEBUG
+        // ESP_LOGI("PID","P:%f I:%f D:%f",kP,kI,kD);
+    #endif
 }
 
 float PIDCONTROLLER::control()
 {
   float deltaT;
-
+  float lastError = error;
   // Salva o tempo do ultimo controle
   deltaT = lastTime;
   // Atualiza o tempo de controle para o tempo atual
-  updateTime(esp_timer_get_time());
+  updateTime(esp_timer_get_time()); // in microseconds
   // Normaliza o valor de deltaT, pois a leitura e feita em microssegundos
-  deltaT = (lastTime - deltaT);
+  deltaT = (lastTime - deltaT) / 1000000.0; //
 
   // Calcula o erro
   error = goal - reading;
@@ -91,7 +91,7 @@ float PIDCONTROLLER::control()
   // Integral
   I += kI * error * deltaT;
   // Derivada
-  D = kD * (reading - previousReading) / deltaT;
+  D = kD * (error - lastError) / deltaT;
 
   // returns pwm control
   return P+I+D;

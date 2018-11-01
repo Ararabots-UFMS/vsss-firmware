@@ -26,8 +26,7 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         //
 
         //enable(SPEAKER_PIN, DUTY_CYCLE_5, FREQ_2, NO_CONEC_TIME);
-        bt_handle = enable(LED_PIN, DUTY_CYCLE_50, FREQ_10, NO_CONEC_TIME);
-
+        // bt_handle = enable(LED_PIN, DUTY_CYCLE_50, FREQ_10, NO_CONEC_TIME);
 
         break;
     case ESP_SPP_DISCOVERY_COMP_EVT:
@@ -60,7 +59,7 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
-        vTaskDelete(bt_handle);
+        // vTaskDelete(bt_handle);
         gpio_set_level(LED_PIN, LOW);
         //gettimeofday(&time_old, NULL);
         break;
@@ -76,7 +75,7 @@ void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
             if (param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS) {
                 ESP_LOGI(SPP_TAG, "authentication success: %s", param->auth_cmpl.device_name);
                 esp_log_buffer_hex(SPP_TAG, param->auth_cmpl.bda, ESP_BD_ADDR_LEN);
-                
+
 
             } else {
                 ESP_LOGE(SPP_TAG, "authentication failed, status:%d", param->auth_cmpl.stat);

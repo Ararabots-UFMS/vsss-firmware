@@ -126,8 +126,16 @@ void motor_control_task(void *pvParameter)
         pid_controller.updateReading(myYaw);
         pid = pid_controller.control();
 
-        lSpeed = speed - pid;
-        rSpeed = speed + pid;
+        if(myMotorPackage.wheels_direction == 0) // forward
+        {
+          lSpeed = speed - pid;
+          rSpeed = speed + pid;
+        }
+        else // backwards
+        {
+          lSpeed = speed + pid;
+          rSpeed = speed - pid;
+        }
 
         lDirection = lSpeed < 0 ? ~myMotorPackage.wheels_direction & 0x01 : myMotorPackage.wheels_direction & 0x01;
         rDirection = rSpeed < 0 ? ~myMotorPackage.wheels_direction & 0x01 : myMotorPackage.wheels_direction & 0x01;
@@ -269,7 +277,7 @@ void app_main()
 
   pid_controller.load_params();
 
-  
+
 
 
   auto x = xTaskCreatePinnedToCore(gyro_task, "gyro_task",
