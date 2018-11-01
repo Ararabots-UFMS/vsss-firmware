@@ -36,7 +36,7 @@ void thingEnable(void* pvParameters){
 }
 
 
-void enable(gpio_num_t pino, float duty, float freq, long long int lifetime){
+TaskHandle_t enable(gpio_num_t pino, float duty, float freq, long long int lifetime){
 
     /* struct to hold information about what will happen */
     thing* enable = (thing* ) malloc(sizeof(thing));
@@ -46,9 +46,11 @@ void enable(gpio_num_t pino, float duty, float freq, long long int lifetime){
     enable->freq = freq;
     enable->lifetime = lifetime;
 
+    TaskHandle_t handle;
+
     /* create a task and start to execute */
     auto x = xTaskCreatePinnedToCore(thingEnable, "thingEnable", DEFAULT_TASK_SIZE,
-                                      (void*) enable, 0, NULL, CORE_ONE);
+                                      (void*) enable, 0, &handle, CORE_ONE);
 
     if(x != pdPASS) ESP_LOGE("ENABLE", "Error creating thread, ERR_CODE: #%X", x);
     else
@@ -58,4 +60,5 @@ void enable(gpio_num_t pino, float duty, float freq, long long int lifetime){
       #endif
     }
 
+    return handle;
 }

@@ -13,6 +13,7 @@ static const esp_spp_sec_t sec_mask = ESP_SPP_SEC_AUTHENTICATE;
 static const esp_spp_role_t role_slave = ESP_SPP_ROLE_SLAVE;
 
 extern SemaphoreHandle_t motorPackageSemaphore;
+TaskHandle_t bt_handle;
 
 void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
@@ -22,12 +23,19 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         esp_bt_dev_set_device_name(DEVICE_NAME);
         esp_bt_gap_set_scan_mode(ESP_BT_SCAN_MODE_CONNECTABLE_DISCOVERABLE);
         esp_spp_start_srv(sec_mask,role_slave, 0, SPP_SERVER_NAME);
+        //
+
+        //enable(SPEAKER_PIN, DUTY_CYCLE_5, FREQ_2, NO_CONEC_TIME);
+        bt_handle = enable(LED_PIN, DUTY_CYCLE_50, FREQ_10, NO_CONEC_TIME);
+
+
         break;
     case ESP_SPP_DISCOVERY_COMP_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_DISCOVERY_COMP_EVT");
         break;
     case ESP_SPP_OPEN_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_OPEN_EVT");
+
         break;
     case ESP_SPP_CLOSE_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_CLOSE_EVT");
@@ -37,6 +45,7 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_CL_INIT_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_CL_INIT_EVT");
+
         break;
     case ESP_SPP_DATA_IND_EVT:
         //ESP_LOGI(SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%u", param->data_ind.len, *(param->data_ind.data));
@@ -51,6 +60,8 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
+        vTaskDelete(bt_handle);
+        gpio_set_level(LED_PIN, LOW);
         //gettimeofday(&time_old, NULL);
         break;
     default:
@@ -65,6 +76,8 @@ void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
             if (param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS) {
                 ESP_LOGI(SPP_TAG, "authentication success: %s", param->auth_cmpl.device_name);
                 esp_log_buffer_hex(SPP_TAG, param->auth_cmpl.bda, ESP_BD_ADDR_LEN);
+                
+
             } else {
                 ESP_LOGE(SPP_TAG, "authentication failed, status:%d", param->auth_cmpl.stat);
             }
@@ -140,6 +153,6 @@ void setup_bluetooth(){
 
     // enable led and buzzer indicating that the bluetooth setup was succesfully done
     // during a certain time, with a certain frequency
-    enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
-    enable(LED_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
+    //enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_2, BT_TIME);
+    //enable(LED_PIN, DUTY_CYCLE_50, FREQ_2, BT_TIME);
 }

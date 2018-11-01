@@ -269,7 +269,7 @@ void app_main()
 
   pid_controller.load_params();
 
-  setup_bluetooth();
+  
 
 
   auto x = xTaskCreatePinnedToCore(gyro_task, "gyro_task",
@@ -291,6 +291,8 @@ void app_main()
   {
     ESP_LOGE("MOTORS", "Error creating thread, ERR_CODE: #%X", x);
   }
+
+  setup_bluetooth();
 
   // vTaskStartScheduler();
 }
