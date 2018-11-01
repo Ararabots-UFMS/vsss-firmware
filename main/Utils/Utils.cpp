@@ -23,12 +23,12 @@ void thingEnable(void* pvParameters){
         /* Turn ON (output HIGH) */
         gpio_set_level(enable->pin, HIGH);
         vTaskDelay(1000*enable->duty*enable->freq / portTICK_PERIOD_MS);
+
         /* Turn OFF (output LOW) */
         gpio_set_level(enable->pin, LOW);
+        vTaskDelay(1000*(1.0-enable->duty)*enable->freq / portTICK_PERIOD_MS);
 
         condition = enable->lifetime != 0 ? esp_timer_get_time() - last_time < enable->lifetime : true;
-
-        vTaskDelay(1000*(1.0-enable->duty)*enable->freq / portTICK_PERIOD_MS);
     }
 
       /* turn GPIO low to delete task */

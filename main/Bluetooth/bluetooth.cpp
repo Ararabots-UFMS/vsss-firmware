@@ -150,6 +150,6 @@ void setup_bluetooth(){
     // enable led and buzzer indicating that the bluetooth setup was succesfully done
     // during a certain time, with a certain frequency
     bt_handle = enable(LED_PIN, DUTY_CYCLE_40, FREQ_2, 0);
-    //enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_2, BT_TIME);
+    enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
     //enable(LED_PIN, DUTY_CYCLE_50, FREQ_2, BT_TIME);
 }

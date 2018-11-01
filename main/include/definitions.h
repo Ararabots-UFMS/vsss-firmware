@@ -84,6 +84,8 @@
 #define CORE_ONE	1
 #define DEFAULT_TASK_SIZE 512
 
+#define BT_TIME			  100000
+
 #define PIDERRO 0.5
 
 #ifndef __STRUCTS__

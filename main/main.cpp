@@ -275,7 +275,11 @@ void app_main()
   }
   ESP_ERROR_CHECK( ret );
 
+  setup_bluetooth();
   pid_controller.load_params();
+
+  // Waiting thing to initialize
+  vTaskDelay(200/portTICK_PERIOD_MS);
 
   auto x = xTaskCreatePinnedToCore(gyro_task, "gyro_task",
                      4*DEFAULT_TASK_SIZE, NULL, 2, NULL, CORE_ONE);
@@ -296,8 +300,6 @@ void app_main()
   {
     ESP_LOGE("MOTORS", "Error creating thread, ERR_CODE: #%X", x);
   }
-
-  setup_bluetooth();
 
   // vTaskStartScheduler();
 }

@@ -54,6 +54,7 @@ Gyro::Gyro(){
         ESP_LOGE(SPP_TAG, "Failed to perform MPU Self-Test, error=%#X", err);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+    
     auto gyro_fail = retSelfTest & mpud::SELF_TEST_GYRO_FAIL;
     auto accel_fail = retSelfTest & mpud::SELF_TEST_ACCEL_FAIL;
 
@@ -62,10 +63,9 @@ Gyro::Gyro(){
              (accel_fail ? "FAIL" : "OK"));
 
 
-    if(!(gyro_fail || accel_fail)){
-
+    if(!(gyro_fail || accel_fail))
+    {
         giroHandle = enable(SPEAKER_PIN, DUTY_CYCLE_10, FREQ_3, GIRO_TIME);
-
     }
 
     // Calibrate
