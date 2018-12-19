@@ -3,5 +3,5 @@
 
 #include <stdint.h>
 
-void parser_params(uint8_t received_param);
+void parser_params(uint8_t* received_param);
 #endif

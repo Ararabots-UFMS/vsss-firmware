@@ -6,16 +6,10 @@
 #include "parser.h"
 #include "definitions.h"
 
-
-static int wheels_direction = 0;
-static int param1 = 0;
-static int param2 = 0;
-static int current_state = START;
-static int first_operation = 0;
-static int second_operation = 0;
-static int sum_for_next_operation[4] = {START, MOTOR_VELOCITY_PARAM_1, SET_ANGLE_CORRECTION_THETA, SET_PID_KP};
-static int rotation_direction = 0;
-static uint32_t kp=0, ki=0, kd=0;
+static int op_code = 0;
+static int operation_arguments;
+static uint32_t *pid_pointer;
+static float kp=0, ki=0, kd=0; 
 
 #ifdef DEBUG
 static char msg_walk[4][19] = {
@@ -38,116 +32,78 @@ extern TaskHandle_t motorTaskHandler;
 motorPackage parser_motor_package;
 extern void writeMotorPackage(motorPackage*);
 
-void parser_params(uint8_t received_param){
+void parser_params(uint8_t* received_param){
 
-    #ifdef DEBUG
-        ESP_LOGW("I received:", "%d", received_param);
-    #endif
+	op_code = (*received_param) & 240; //11110000
+	operation_arguments = (*received_param) & 15; //00001111
 
-	first_operation = current_state & 82; // 01010010
-	// Bit mask for reducing the if comparassions
+	switch (op_code) {
+		case SET_MOTOR_CODE: // State 00000000
+		
+			// MOTOR FORCE YEAH
+			parser_motor_package.packetID++;
+			parser_motor_package.wheels_direction = operation_arguments; // Direction
+			parser_motor_package.speed_l = *(received_param + 1); // Left speed
+			parser_motor_package.speed_r = *(received_param + 2); // right speed
+			parser_motor_package.control_type = 1; // Old or new control type
 
-	switch (first_operation) {
-		case START: // State 00000000
-			second_operation = (received_param & 12)>>2; // Bit mask for reducing if comparassions in
-			// sum_for_next_operation at position second_operation
-			// this allows for the code to jump to next state
-			wheels_direction = received_param & 3; // Wheels orientation
-      rotation_direction = received_param & 2;
-			current_state = sum_for_next_operation[second_operation];
 			#ifdef DEBUG
-				ESP_LOGE("State:", "Start\n");
+				ESP_LOGE("State:", "Set Motor Code L:%d R:%d WD:%d\n",
+					parser_motor_package.speed_l,
+					parser_motor_package.speed_r,
+					parser_motor_package.wheels_direction
+				);
 			#endif
+
+			writeMotorPackage(&parser_motor_package);
+			xTaskNotifyGive(motorTaskHandler);
+
+			break;
+		case SET_ANGLE_CORRECTION_CODE://> 7 && < 15:
+
+			// implementar robo autonomo sentido horario com wheel direction
+			parser_motor_package.packetID++;
+			parser_motor_package.theta = *(received_param + 1); // Left speed
+			parser_motor_package.speed_r = *(received_param + 2); // right speed
+			parser_motor_package.speed_l = *(received_param + 2); // left speed
+			parser_motor_package.wheels_direction = operation_arguments; // Direction
+			parser_motor_package.control_type = 0; // Old or new control type
+
+			#ifdef DEBUG
+				ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n", 
+					parser_motor_package.theta,
+					parser_motor_package.speed_r,
+					angle[parser_motor_package.wheels_direction]
+				);
+			#endif
+
+   			//parser_motor_package.rotation_direction = rotation_direction >> 1;
+			writeMotorPackage(&parser_motor_package);
+			xTaskNotifyGive(motorTaskHandler);
+					
 			break;
 
-		case MOTOR_VELOCITY_PARAM_1:
-			if ( current_state == MOTOR_VELOCITY_PARAM_1){
-				#ifdef DEBUG
-					ESP_LOGE("State:", "MOTOR_VELOCITY_PARAM_1\n");
-				#endif
-				param1 = received_param;
-				current_state = MOTOR_VELOCITY_PARAM_2;
-			}else{
-				#ifdef DEBUG
-					ESP_LOGE("State:", "MOTOR_VELOCITY_PARAM_2 %s\n", msg_walk[wheels_direction] );
-				#endif
-				param2 = received_param;
-				// MOTOR FORCE YEAH
-				parser_motor_package.packetID++;
-				parser_motor_package.wheels_direction = wheels_direction; // Direction
-				parser_motor_package.speed_l = param1; // Left speed
-				parser_motor_package.speed_r = param2; // right speed
-				parser_motor_package.control_type = 1; // Old or new control type
-				writeMotorPackage(&parser_motor_package);
-				xTaskNotifyGive(motorTaskHandler);
-				current_state = START;
-			}
-			break;
+		case SET_PID_CODE:
+			
+			pid_pointer = (uint32_t*) (received_param+1);
+			kp = *((float*) (pid_pointer) );
+			ki = *((float*) (pid_pointer+1) );
+			kd = *((float*) (pid_pointer+2) );
 
-		case SET_ANGLE_CORRECTION_THETA://> 7 && < 15:
-			if ( current_state == SET_ANGLE_CORRECTION_THETA){
-				#ifdef DEBUG
-					ESP_LOGE("State:", "SET_ANGLE_CORRECTION_THETA\n");
-				#endif
-				param1 = received_param;
-				current_state = SET_ANGLE_CORRECTION_SPEED;
-			}else{
-				param2 = received_param;
-				#ifdef DEBUG
-					ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n", param1, param2, angle[wheels_direction]);
-				#endif
-				// implementar robo autonomo sentido horario com wheel direction
-				parser_motor_package.packetID++;
-				parser_motor_package.theta = param1; // Left speed
-				parser_motor_package.speed_r = param2; // right speed
-				parser_motor_package.speed_l = param2; // left speed
-				parser_motor_package.wheels_direction = wheels_direction & 1; // Direction
-				parser_motor_package.control_type = 0; // Old or new control type
-        parser_motor_package.rotation_direction = rotation_direction >> 1;
-				writeMotorPackage(&parser_motor_package);
-				xTaskNotifyGive(motorTaskHandler);
-				current_state = START;
-			}
-			break;
+			#ifdef DEBUG
+				ESP_LOGI("State:", "SET_PID: P:%f I:%f D:%f\n", 
+					kp,
+					ki,
+					kd
+				);
+			#endif
 
-		case SET_PID_KP:
-			if (current_state == SET_PID_KP){
-				//ESP_LOGE("State:", "SET_PID_KP\n");
-				++param1;
-				kp = kp<<8 | received_param;
-				if (param1==4){
-					current_state = SET_PID_KI;
-					param1 = 0;
-				}
-			}
-			else if (current_state == SET_PID_KI){
-				++param1;
-				//ESP_LOGE("State:", "SET_PID_KI: %d\n", aux);
-				ki = ki<<8 | received_param;
-				if (param1==4){
-					current_state = SET_PID_KD;
-					param1 = 0;
-				}
-			}else{
-				// implementar update de PID
-				// usando param1, 2 e o received
-				++param1;
-				kd = kd<<8 | received_param;
-				if (param1==4){
-					current_state = START;
-					param1 = 0;
-					#ifdef DEBUG
-						ESP_LOGI("State:", "SET_PID: P:%f I:%f D:%f\n", *((float*)&kp), *((float*)&ki), *((float*)&kd));
-					#endif
-				}
-				pid_controller.set_PID(*((float*)&kp), *((float*)&ki), *((float*)&kd));
-			}
-			break;
+			pid_controller.set_PID( kp, ki, kd);
 
+			break;
 		default:
 			// tratamento de exceção
-			ESP_LOGE("PARSER ERROR", "Current State: %d F:%d S:%d WD:%d\n", current_state, first_operation, second_operation,wheels_direction);
-			current_state = START;
+			ESP_LOGE("PARSER ERROR", "Op_Code:%d Arguments:%d", op_code, operation_arguments);
 			break;
 	}
 }

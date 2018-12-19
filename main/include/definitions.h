@@ -5,7 +5,7 @@
 #include "driver/gpio.h"
 
 // Should debug?
-// #define DEBUG
+#define DEBUG
 
 // Robot name and tag for debug
 #define SPP_TAG					"ROBOT_NAME"

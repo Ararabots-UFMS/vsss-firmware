@@ -46,7 +46,7 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_DATA_IND_EVT:
         //ESP_LOGI(SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%u", param->data_ind.len, *(param->data_ind.data));
         //esp_log_buffer_char("Message: ", *(param->data_ind.data),param->data_ind.len);
-        parser_params(*(param->data_ind.data));
+        parser_params(param->data_ind.data);
         break;
     case ESP_SPP_CONG_EVT:
         ESP_LOGI(SPP_TAG, "ESP_SPP_CONG_EVT");
