@@ -1,4 +1,0 @@
-#define SET_MOTOR_CODE 				0 // 00000000
-#define SET_ANGLE_CORRECTION_CODE  16 // 00010000
-#define SET_PID_CODE  			   32 // 00100000
-#define SET_SPIN_CIDE 			   48 // 00110000

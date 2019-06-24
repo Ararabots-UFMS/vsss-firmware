@@ -1,3 +1,6 @@
+#ifndef _DEFINITIONS_H
+#define _DEFINITIONS_H
+
 #include <math.h>
 #include <stdint.h>
 #include "driver/ledc.h"
@@ -8,9 +11,16 @@
 #define DEBUG
 
 // Robot name and tag for debug
-#define SPP_TAG					"ROBOT_NAME"
+#define SPP_TAG			"ROBOT_NAME"
 #define SPP_SERVER_NAME	"SPP_SERVER"
-#define DEVICE_NAME			"ROBOT_NAME"
+#define DEVICE_NAME		"ROBOT_NAME"
+
+// PARSER OPCODES
+#define SET_MOTOR_CODE 				0 // 0000 0000
+#define SET_ANGLE_CORRECTION_CODE   1 // 0001 0000
+#define SET_PID_CODE  			    2 // 0010 0000
+#define SET_SPIN_CIDE 			    3 // 0011 0000
+// END PARSER OPCODES
 
 // GYROSCOPE CONSTANTS
 #define GYRO_SDA_PIN 			GPIO_NUM_16
@@ -18,6 +28,7 @@
 #define GYRO_CLOCK_SPEED 	400000
 #define GYRO_INT_PIN 			4
 #define GYRO_SAMPLE_RATE 	250
+// END GYROSCOPE CONSTANTS
 
 // MOTOR CLASS CONSTANTS
 #define PWM_FREQ 20000
@@ -37,25 +48,26 @@
 #define MOTOR_TASK_STACK		8192
 #define MOTOR_MAX_EN_SPEED	70
 #define MOTOR_ACCELERATION	15
+// END MOTOR CLASS CONSTANTS
 
-#define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
-#define NO_OF_SAMPLES   64          //Multisampling
-#define SPEAKER_PIN    	GPIO_NUM_19
-#define LED_PIN					GPIO_NUM_22
-
-
-#define ADC_R1	100000  // 100K
-#define ADC_R2	10000   // 10k
-
-#define HIGH	1
-#define LOW		0
+// VOLTIMETER
+#define DEFAULT_VREF 1100        //Use adc2_vref_to_gpio() to obtain a better estimate
+#define NO_OF_SAMPLES 64          //Multisampling
+#define SPEAKER_PIN GPIO_NUM_19
+#define LED_PIN GPIO_NUM_22
 #define R1 100150
 #define R2 9910
-
-#define V_MIN                 10.000
-#define MEASURE_TIME          60000 // 60 seconds in millis, delay measure takes a minute
+#define V_MIN 10.000
+#define MEASURE_TIME 60000 // 60 seconds in millis, delay measure takes a minute
 #define VOLTIMETER_TASK_STACK 2048
+// END VOLTIMETER
 
+// MISC
+#define HIGH 1
+#define LOW 0
+#define NEW_CONTROL 0
+#define OLD_CONTROL 1
+// END MISC
 
 #define BUZZER_TIME 	20000000
 #define NO_CONEC_TIME 	35000000
@@ -69,7 +81,7 @@
 #define DUTY_CYCLE_60		0.6
 #define DUTY_CYCLE_80		0.8
 #define DUTY_CYCLE_90		0.9
-#define DUTY_CYCLE_100	1.0
+#define DUTY_CYCLE_100	    1.0
 
 #define FREQ_1		1
 #define FREQ_2 		0.5
@@ -88,6 +100,9 @@
 
 #define PIDERRO 0.5
 
+#endif
+
+
 #ifndef __STRUCTS__
 #define __STRUCTS__
 
@@ -97,7 +112,7 @@ typedef struct motorPackage{
 	uint8_t wheels_direction = 0; // direcao das rodas
 	uint8_t speed_r = 0; // right speed
 	uint8_t control_type = 1; //0 angle and speed correction / 1 right speed and left speed
-  uint8_t rotation_direction = 0; // 0 horario / 1 anti-horario
+  	uint8_t rotation_direction = 0; // 0 horario / 1 anti-horario
 	unsigned long int packetID = 0;
 } motorPackage;
 
@@ -107,3 +122,4 @@ typedef struct controlPackage{
 	float KD = 0.0;
 } controlPackage;
 #endif
+

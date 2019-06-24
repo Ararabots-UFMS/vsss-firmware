@@ -281,14 +281,14 @@ void app_main()
   // Waiting thing to initialize
   vTaskDelay(200/portTICK_PERIOD_MS);
 
-  auto x = xTaskCreatePinnedToCore(gyro_task, "gyro_task",
-                     4*DEFAULT_TASK_SIZE, NULL, 2, NULL, CORE_ONE);
-  if(x != pdPASS)
-  {
-    ESP_LOGE("GYRO", "Error creating thread, ERR_CODE: #%X", x);
-  }
+  //auto x = xTaskCreatePinnedToCore(gyro_task, "gyro_task",
+  //                   4*DEFAULT_TASK_SIZE, NULL, 2, NULL, CORE_ONE);
+  //if(x != pdPASS)
+  //{
+  //  ESP_LOGE("GYRO", "Error creating thread, ERR_CODE: #%X", x);
+  //}
 
-  x = xTaskCreate(voltimetro, "voltimetro", VOLTIMETER_TASK_STACK, NULL, 1, NULL);
+  auto x = xTaskCreate(voltimetro, "voltimetro", VOLTIMETER_TASK_STACK, NULL, 1, NULL);
   if(x != pdPASS)
   {
     ESP_LOGE("VOLTIMETER", "Error creating thread, ERR_CODE: #%X", x);

@@ -2,7 +2,6 @@
 // #include "freertos/task.h"
 
 #include "PIDController.h"
-#include "state_machine_definitions.h"
 #include "parser.h"
 #include "definitions.h"
 
@@ -34,21 +33,21 @@ extern void writeMotorPackage(motorPackage*);
 
 void parser_params(uint8_t* received_param){
 
-	op_code = (*received_param) & 240; //11110000
-	operation_arguments = (*received_param) & 15; //00001111
+	op_code = (*received_param)  >> 4; // XXXX 0000 -> 0000 XXXX
+	operation_arguments = (*received_param) & 15; //0000 XXXX
 
 	switch (op_code) {
 		case SET_MOTOR_CODE: // State 00000000
-		
+
 			// MOTOR FORCE YEAH
-			parser_motor_package.packetID++;
+			++parser_motor_package.packetID;
 			parser_motor_package.wheels_direction = operation_arguments; // Direction
 			parser_motor_package.speed_l = *(received_param + 1); // Left speed
 			parser_motor_package.speed_r = *(received_param + 2); // right speed
-			parser_motor_package.control_type = 1; // Old or new control type
+			parser_motor_package.control_type = OLD_CONTROL; 
 
 			#ifdef DEBUG
-				ESP_LOGE("State:", "Set Motor Code L:%d R:%d WD:%d\n",
+				ESP_LOGE("State:", "Set Motor Code L:%d R:%d WHEELSDIRECTION:%d\n",
 					parser_motor_package.speed_l,
 					parser_motor_package.speed_r,
 					parser_motor_package.wheels_direction
@@ -62,12 +61,12 @@ void parser_params(uint8_t* received_param){
 		case SET_ANGLE_CORRECTION_CODE://> 7 && < 15:
 
 			// implementar robo autonomo sentido horario com wheel direction
-			parser_motor_package.packetID++;
+			++parser_motor_package.packetID;
 			parser_motor_package.theta = *(received_param + 1); // Left speed
 			parser_motor_package.speed_r = *(received_param + 2); // right speed
 			parser_motor_package.speed_l = *(received_param + 2); // left speed
 			parser_motor_package.wheels_direction = operation_arguments; // Direction
-			parser_motor_package.control_type = 0; // Old or new control type
+			parser_motor_package.control_type = NEW_CONTROL;
 
 			#ifdef DEBUG
 				ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n", 
