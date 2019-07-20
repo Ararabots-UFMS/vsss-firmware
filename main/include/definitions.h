@@ -63,6 +63,7 @@
 // END VOLTIMETER
 
 // MISC
+// #define HARDWARE_ACCELERATION
 #define HIGH 1
 #define LOW 0
 #define NEW_CONTROL 0

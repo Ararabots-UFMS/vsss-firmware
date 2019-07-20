@@ -72,27 +72,31 @@ void Motor::enable(unsigned char _pwm, bool sentido)
   {
     init();
   }
-
+  
   unsigned char pwm = _pwm;
-  if(_pwm > currentSpeed)
-  {
-    pwm = currentSpeed;
-    if(currentSpeed == 0) // ie: o motor estava parado
+  #ifdef HARDWARE_ACCELERATION
+    if(_pwm > currentSpeed)
     {
-      pwm = (_pwm < MOTOR_MAX_EN_SPEED) ? _pwm : MOTOR_MAX_EN_SPEED;
-      updateTime(esp_timer_get_time());
-    }
-    else
-    {
-      float tNow = esp_timer_get_time();
-      float deltaT = tNow - lastEnableTime;
-      if(deltaT >= 50000) // deltaT > 50 milliseconds
+      pwm = currentSpeed;
+      if(currentSpeed == 0) // ie: o motor estava parado
       {
-        updateTime(tNow);
-        pwm = (currentSpeed+MOTOR_ACCELERATION >= _pwm) ? _pwm : pwm+MOTOR_ACCELERATION;
+        pwm = (_pwm < MOTOR_MAX_EN_SPEED) ? _pwm : MOTOR_MAX_EN_SPEED;
+        updateTime(esp_timer_get_time());
+      }
+      else
+      {
+        float tNow = esp_timer_get_time();
+        float deltaT = tNow - lastEnableTime;
+        if(deltaT >= 50000) // deltaT > 50 milliseconds
+        {
+          updateTime(tNow);
+          pwm = (currentSpeed+MOTOR_ACCELERATION >= _pwm) ? _pwm : pwm+MOTOR_ACCELERATION;
+        }
       }
     }
-  }
+    currentSpeed = pwm;
+
+  #endif
 
 
   gpio_set_level(in1, sentido);
@@ -102,7 +106,6 @@ void Motor::enable(unsigned char _pwm, bool sentido)
 
   // Atualiza o sentido
   sentidoAtual = sentido;
-  currentSpeed = pwm;
 }
 
 void Motor::updateTime(int64_t t)
