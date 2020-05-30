@@ -37,6 +37,22 @@ void parser_params(uint8_t* received_param){
 	operation_arguments = (*received_param) & 15; //0000 XXXX
 
 	switch (op_code) {
+
+		case SET_SPIN_CODE:
+			++parser_motor_package.packetID;
+			// 0001 = 1 -> esquerda frente, direita trás = horário
+			// 0010 = 2 -> esquerda trás, direita frente = anti-horário
+			// Setamos mas não usamos...
+			// parser_motor_package.rotation_direction = operation_arguments == 1 ? HORARIO : ANTIHORARIO;
+			parser_motor_package.wheels_direction = operation_arguments; // Direction
+			parser_motor_package.control_type = SPIN;
+			parser_motor_package.speed_l = *(received_param + 1);
+
+			writeMotorPackage(&parser_motor_package);
+			xTaskNotifyGive(motorTaskHandler);
+
+			break;
+
 		case SET_MOTOR_CODE: // State 00000000
 
 			// MOTOR FORCE YEAH

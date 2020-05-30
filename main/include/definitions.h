@@ -19,7 +19,7 @@
 #define SET_MOTOR_CODE 				0 // 0000 0000
 #define SET_ANGLE_CORRECTION_CODE   1 // 0001 0000
 #define SET_PID_CODE  			    2 // 0010 0000
-#define SET_SPIN_CIDE 			    3 // 0011 0000
+#define SET_SPIN_CODE 			    3 // 0011 0000
 // END PARSER OPCODES
 
 // GYROSCOPE CONSTANTS
@@ -68,6 +68,7 @@
 #define LOW 0
 #define NEW_CONTROL 0
 #define OLD_CONTROL 1
+#define SPIN 2 // Também definido na main
 // END MISC
 
 #define BUZZER_TIME 	20000000

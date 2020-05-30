@@ -22,7 +22,7 @@
 #include "Utils.h"
 #include <gyro.h>
 
-#define PIDCONTROL 0
+#define SPIN       2 // Mesmo código presente em definitions.h
 #define PI         3.14159265359
 #define DEG2RAD    0.01745329251
 
@@ -101,7 +101,7 @@ void motor_control_task(void *pvParameter)
     if(notificationValue > 0)
     {
       readMotorPackage(&myMotorPackage);
-      if(myMotorPackage.control_type != PIDCONTROL)
+      if(myMotorPackage.control_type == OLD_CONTROL)
       {
         #ifdef DEBUG
           ESP_LOGI("MOTOR", "LEFT WHEEL SPEED: %u", myMotorPackage.speed_l);
@@ -109,6 +109,12 @@ void motor_control_task(void *pvParameter)
         #endif
         motor_left.enable(myMotorPackage.speed_l, myMotorPackage.wheels_direction >> 1);
         motor_right.enable(myMotorPackage.speed_r, myMotorPackage.wheels_direction & 1);
+      }
+      else if (myMotorPackage.control_type == SPIN)
+      {
+        // Observação: o único caso em que as rodas terão sentidos opostos será no spin. As direções são sempre iguais no OLD_CONTROL
+        motor_left.enable(myMotorPackage.speed_l, myMotorPackage.wheels_direction >> 1);
+        motor_right.enable(myMotorPackage.speed_l, myMotorPackage.wheels_direction & 1);
       }
       else
       {
