@@ -11,9 +11,9 @@
 #define DEBUG
 
 // Robot name and tag for debug
-#define SPP_TAG			"ROBOT_NAME"
+#define SPP_TAG			"ROBOT_BT_TESTER"
 #define SPP_SERVER_NAME	"SPP_SERVER"
-#define DEVICE_NAME		"ROBOT_NAME"
+#define DEVICE_NAME		"ROBOT_BT_TESTER"
 
 // PARSER OPCODES
 #define SET_MOTOR_CODE 				0 // 0000 0000

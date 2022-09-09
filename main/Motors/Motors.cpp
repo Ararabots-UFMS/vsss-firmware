@@ -5,7 +5,7 @@
 #include "driver/mcpwm.h"
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
-
+#include "esp_timer.h"
 #include "esp_log.h"
 
 Motor::Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_t _pwmChannel)
@@ -37,10 +37,10 @@ Motor::Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_
    ESP_ERROR_CHECK( ledc_timer_config(&ledc_timer) );
 
   // Definicao dos pinos de saida, e do controle de pwm com ledc
-  gpio_pad_select_gpio(in1);
+  esp_rom_gpio_pad_select_gpio(in1);
   gpio_set_direction(in1, GPIO_MODE_OUTPUT);
 
-  gpio_pad_select_gpio(in2);
+  esp_rom_gpio_pad_select_gpio(in2);
   gpio_set_direction(in2, GPIO_MODE_OUTPUT);
 
   // Inicialização

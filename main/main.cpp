@@ -234,7 +234,7 @@ void voltimetro(void * pvParamters){
     Voltimetro voltimetro(R1,R2);
 
     /* Select the GPIO to be used */
-    gpio_pad_select_gpio(SPEAKER_PIN);
+    esp_rom_gpio_pad_select_gpio(SPEAKER_PIN);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(SPEAKER_PIN, GPIO_MODE_OUTPUT);
 
