@@ -2,7 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
-#include "driver/mcpwm.h"
+#include "driver/mcpwm_prelude.h"
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
 #include "esp_timer.h"
@@ -31,6 +31,7 @@ Motor::Motor(gpio_num_t _in1, gpio_num_t _in2, gpio_num_t _pwmPin, ledc_channel_
   ledc_timer.duty_resolution = MOTOR_PWM_BIT_NUM;
   ledc_timer.timer_num = MOTOR_PWM_TIMER;
   ledc_timer.freq_hz = PWM_FREQ;
+  ledc_timer.clk_cfg = LEDC_AUTO_CLK;
 
 
    ESP_ERROR_CHECK( ledc_channel_config(&ledc_channel) );
