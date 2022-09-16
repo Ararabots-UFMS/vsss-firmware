@@ -91,7 +91,7 @@ void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
     return;
 }
 
-void setup_bluetooth(){
+void old_setup_bluetooth(){
   xSemaphoreGive(motorPackageSemaphore);
 	esp_err_t ret;
 

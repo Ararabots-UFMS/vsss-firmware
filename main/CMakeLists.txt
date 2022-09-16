@@ -3,7 +3,7 @@ set(COMPONENT_SRCS 	"Utils/Utils.cpp"
 				    "Gyro/gyro.cpp"
 				    "Parser/parser.cpp"
 				    "Motors/Motors.cpp"
-				    "Bluetooth/bluetooth.cpp"
+				    "Bluetooth/bluetooth_ble.cpp"
 				    "PIDControl/PIDController.cpp"
 				    "Memory/Memory.cpp"
 				    "main.cpp")
