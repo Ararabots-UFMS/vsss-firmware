@@ -109,7 +109,7 @@ static const uint8_t char_prop_read_write = ESP_GATT_CHAR_PROP_BIT_WRITE|ESP_GAT
 
 /// ROBOT Service - Motor Power characteristic, write
 static const uint16_t motor_power_level_uuid = ESP_GATT_UUID_TX_POWER_LEVEL;
-static const uint8_t motor_power_level_val[4] = { (uint8_t) 0,  (uint8_t) 0, (uint8_t) 0, (uint8_t) 0 };
+static const uint8_t motor_power_level_val[3] = { (uint8_t) 0,  (uint8_t) 0, (uint8_t) 0 };
 
 
 /// ROBOT Service - Battery Level characteristic, read
@@ -132,7 +132,7 @@ static const esp_gatts_attr_db_t robot_gatt_db[ROBOT_IDX_NB] =
     // Motor Power Characteristic Value
     [MOTOR_POWER_LEVEL_VAL]   =
     {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&motor_power_level_uuid, ESP_GATT_PERM_WRITE|ESP_GATT_PERM_READ,
-      sizeof(u_int32_t), sizeof(motor_power_level_val), (uint8_t *)motor_power_level_val}},
+      sizeof(motor_power_level_val), sizeof(motor_power_level_val), (uint8_t *)motor_power_level_val}},
 
     // Battery Level Characteristic Declaration
     [BATTERY_LEVEL_CHAR]          =
@@ -425,6 +425,8 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             ESP_LOGI(GATTS_TABLE_TAG, "fail reason = 0x%x",param->ble_security.auth_cmpl.fail_reason);
         } else {
             ESP_LOGI(GATTS_TABLE_TAG, "auth mode = %s",esp_auth_req_to_str(param->ble_security.auth_cmpl.auth_mode));
+            vTaskDelete(bt_handle);
+            gpio_set_level(LED_PIN, LOW);
         }
         show_bonded_devices();
         break;
@@ -479,9 +481,12 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
         case ESP_GATTS_READ_EVT:
             break;
         case ESP_GATTS_WRITE_EVT:
-            ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_WRITE_EVT, write value:");
-            ESP_LOGI(GATTS_TABLE_TAG, "%u %u %u %u", param->write.value[0], param->write.value[1], param->write.value[2], param->write.value[3] );
-            esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value, param->write.len);
+            #ifdef DEBUG
+                ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_WRITE_EVT, write value:");
+                ESP_LOGI(GATTS_TABLE_TAG, "%u %u %u", param->write.value[0], param->write.value[1], param->write.value[2]);
+                esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value, param->write.len);
+            #endif
+            parser_params(param->write.value);
             break;
         case ESP_GATTS_EXEC_WRITE_EVT:
             break;
@@ -505,6 +510,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
         case ESP_GATTS_DISCONNECT_EVT:
             ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_DISCONNECT_EVT, disconnect reason 0x%x", param->disconnect.reason);
             /* start advertising again when missing the connect */
+            bt_handle = enable(LED_PIN, DUTY_CYCLE_40, FREQ_2, 0);
             esp_ble_gap_start_advertising(&robot_adv_params);
             break;
         case ESP_GATTS_OPEN_EVT:
