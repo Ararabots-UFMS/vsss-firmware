@@ -126,12 +126,12 @@ static const esp_gatts_attr_db_t robot_gatt_db[ROBOT_IDX_NB] =
 
     // Motor Power Characteristic Declaration
     [MOTOR_POWER_LEVEL_CHAR]  =
-    {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ,
+    {{ESP_GATT_WRITE_TYPE_NO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ,
       CHAR_DECLARATION_SIZE,CHAR_DECLARATION_SIZE, (uint8_t *)&char_prop_read_write}},
 
     // Motor Power Characteristic Value
     [MOTOR_POWER_LEVEL_VAL]   =
-    {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&motor_power_level_uuid, ESP_GATT_PERM_WRITE|ESP_GATT_PERM_READ,
+    {{ESP_GATT_WRITE_TYPE_NO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&motor_power_level_uuid, ESP_GATT_PERM_WRITE,
       sizeof(motor_power_level_val), sizeof(motor_power_level_val), (uint8_t *)motor_power_level_val}},
 
     // Battery Level Characteristic Declaration
