@@ -16,8 +16,9 @@ void thingEnable(void* pvParameters){
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(enable->pin, GPIO_MODE_OUTPUT);
 
-    long long int last_time = esp_timer_get_time();
-    bool condition = enable->lifetime != 0 ? esp_timer_get_time() - last_time < enable->lifetime : true;
+    long long int last_time, current_time = esp_timer_get_time();
+    last_time = esp_timer_get_time();
+    bool condition = enable->lifetime != 0 ? (current_time - last_time) < enable->lifetime : true;
     while(condition == true)
     {
         /* Turn ON (output HIGH) */
@@ -27,8 +28,8 @@ void thingEnable(void* pvParameters){
         /* Turn OFF (output LOW) */
         gpio_set_level(enable->pin, LOW);
         vTaskDelay(1000*(1.0-enable->duty)*enable->freq / portTICK_PERIOD_MS);
-
-        condition = enable->lifetime != 0 ? esp_timer_get_time() - last_time < enable->lifetime : true;
+        current_time = esp_timer_get_time();
+        condition = enable->lifetime != 0 ? (current_time - last_time) < enable->lifetime : true;
     }
 
       /* turn GPIO low to delete task */
@@ -57,7 +58,7 @@ TaskHandle_t enable(gpio_num_t pino, float duty, float freq, long long int lifet
     TaskHandle_t handle;
 
     /* create a task and start to execute */
-    auto x = xTaskCreatePinnedToCore(thingEnable, "thingEnable", DEFAULT_TASK_SIZE,
+    auto x = xTaskCreatePinnedToCore(thingEnable, "thingEnable", 2048,
                                       (void*) enable, 0, &handle, CORE_ONE);
 
     if(x != pdPASS) ESP_LOGE("ENABLE", "Error creating thread, ERR_CODE: #%X", x);
