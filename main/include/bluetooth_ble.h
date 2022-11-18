@@ -1,3 +1,4 @@
+#if CONFIG_BT_ENABLED
 /*
  * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
  *
@@ -61,3 +62,5 @@ enum
 };
 
 void setup_bluetooth();
+
+#endif

@@ -15,7 +15,13 @@
 #include <math.h>
 
 #include "PIDController.h"
-#include "bluetooth_ble.h"
+
+#if CONFIG_BT_ENABLED
+  #include "bluetooth_ble.h"
+#else
+  #include "espnow.h"
+#endif
+
 #include "Motors.h"
 #include "Voltimetro.h"
 #include "definitions.h"
@@ -274,8 +280,15 @@ void app_main()
       ret = nvs_flash_init();
   }
   ESP_ERROR_CHECK( ret );
+  
+  #if CONFIG_BT_ENABLED
+    setup_bluetooth();
+  #else
+    setup_esp_now();
+  #endif
 
-  setup_bluetooth();
+
+
   pid_controller.load_params();
 
   // Waiting thing to initialize

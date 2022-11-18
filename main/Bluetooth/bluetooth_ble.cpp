@@ -1,3 +1,4 @@
+#if CONFIG_BT_ENABLED
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -659,3 +660,4 @@ void setup_bluetooth(){
     enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
     //enable(LED_PIN, DUTY_CYCLE_50, FREQ_2, BT_TIME);
 }
+#endif 
