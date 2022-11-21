@@ -30,13 +30,6 @@ menu "Wifi Configuration"
         range 0 14
         help
             The channel on which sending and receiving ESPNOW data.
-
-    config ESPNOW_SEND_DELAY
-        int "Send delay"
-        default 1000
-        range 0 65535
-        help
-            Delay between sending two ESPNOW data, unit: ms.
     
     config ESPNOW_ENABLE_LONG_RANGE
         bool "Enable Long Range"
