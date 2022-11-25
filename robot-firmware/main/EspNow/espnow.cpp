@@ -25,20 +25,20 @@
 #include "esp_crc.h"
 #include "espnow.h"
 #include "esp_private/wifi.h"
+#include "definitions.h"
+#include "Utils.h"
 
 #define ESPNOW_MAXDELAY 512
 
 static const char *TAG = "espnow_example";
-static int package_index = -1;
-
-#if CONFIG_DEBUG_MODE
-    static int last_package_index = -1;
-#endif
+static int package_index = -1, last_package_index = -1;
 
 static QueueHandle_t s_example_espnow_queue;
 
 static uint8_t s_example_broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 static uint8_t own_mac[ESP_NOW_ETH_ALEN];
+
+TaskHandle_t led_handle = NULL;
 
 /* WiFi should start before using ESPNOW */
 static void example_wifi_init(void)
@@ -125,6 +125,11 @@ static void example_espnow_task(void *pvParameter)
         ESP_LOGI(TAG, "Start sending broadcast data");
     #endif
 
+    // enable led and buzzer indicating that the bluetooth setup was succesfully done
+    // during a certain time, with a certain frequency
+    led_handle = enable(LED_PIN, DUTY_CYCLE_40, FREQ_2, 0);
+    enable(SPEAKER_PIN, DUTY_CYCLE_50, FREQ_12, BT_TIME);
+
     while (xQueueReceive(s_example_espnow_queue, &evt, portMAX_DELAY) == pdTRUE) {
         
         #if CONFIG_DEBUG_MODE
@@ -133,17 +138,26 @@ static void example_espnow_task(void *pvParameter)
 
         if ((package_index == -1 ) || !check_hw_addr_at_index((uint8_t*) &evt, package_index)){
             package_index = find_valid_index_in_package((uint8_t*) &evt);
-            
-            #if CONFIG_DEBUG_MODE
+
             if (package_index != last_package_index){
                 if (package_index == -1 ){
-                    ESP_LOGE(TAG, "Could not find index!");
+                    #if CONFIG_DEBUG_MODE
+                        ESP_LOGE(TAG, "Could not find index!");
+                    #endif
+                    if(led_handle == NULL)
+                        led_handle = enable(LED_PIN, DUTY_CYCLE_40, FREQ_2, 0);
                 }else{
-                    ESP_LOGI(TAG, "Found new valid index at %d!", package_index);
+                    #if CONFIG_DEBUG_MODE
+                        ESP_LOGI(TAG, "Found new valid index at %d!", package_index);
+                    #endif
+                    if(led_handle!= NULL){
+                        vTaskDelete(led_handle);
+                        gpio_set_level(LED_PIN, LOW);
+                        led_handle = NULL;
+                    }
                 }
                 last_package_index = package_index;
             }
-            #endif            
         }
 
         if (package_index >= 0){
