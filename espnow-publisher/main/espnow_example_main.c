@@ -25,7 +25,7 @@
 #include "esp_now.h"
 #include "esp_crc.h"
 #include "espnow_example.h"
-
+#include "esp_private/wifi.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
