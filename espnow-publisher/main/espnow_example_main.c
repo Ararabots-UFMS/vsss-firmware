@@ -98,10 +98,12 @@ static void echo_task(void *arg)
         data[i] = (uint8_t *) malloc(BUF_SIZE);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-
+    
+    TickType_t read_blocking_time_ms =  4 / portTICK_PERIOD_MS;
+    
     while (1) {
         // Read data from the UART, wait 16 ms for busy loop
-        int len = uart_read_bytes(ECHO_UART_PORT_NUM, data[data_buffer_counter], (BUF_SIZE - 1), 16 / portTICK_PERIOD_MS);
+        int len = uart_read_bytes(ECHO_UART_PORT_NUM, data[data_buffer_counter], (BUF_SIZE - 1), read_blocking_time_ms);
 
         if (len==sizeof(arara_only_payload_t)) {
             
