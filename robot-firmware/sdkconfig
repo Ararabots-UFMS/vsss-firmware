@@ -273,6 +273,11 @@ CONFIG_SECURE_BOOT_V1_SUPPORTED=y
 # end of Security features
 
 #
+# MPU driver
+#
+# end of MPU driver
+
+#
 # Application manager
 #
 CONFIG_APP_COMPILE_TIME_DATE=y
@@ -351,7 +356,7 @@ CONFIG_ESPNOW_CHANNEL=1
 #
 CONFIG_PAYLOAD_PASSWORD="ARARA"
 CONFIG_MIN_PKG_SIZE=5
-CONFIG_ROBOTS_IN_WIFI_PKG=6
+CONFIG_ROBOTS_IN_WIFI_PKG=10
 # CONFIG_DEBUG_MODE is not set
 # end of Arara Menu Configuration
 
@@ -535,6 +540,11 @@ CONFIG_ESP_TLS_USING_MBEDTLS=y
 # CONFIG_ESP_TLS_PSK_VERIFICATION is not set
 # CONFIG_ESP_TLS_INSECURE is not set
 # end of ESP-TLS
+
+#
+# MPU driver
+#
+# end of MPU driver
 
 #
 # ADC and ADC Calibration
