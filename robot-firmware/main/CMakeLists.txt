@@ -3,9 +3,10 @@ set(COMPONENT_SRCS 	"Utils/Utils.cpp"
 				    "Gyro/gyro.cpp"
 				    "Parser/parser.cpp"
 				    "Motors/Motors.cpp"
-				    "Bluetooth/bluetooth.cpp"
+				    "Bluetooth/bluetooth_ble.cpp"
 				    "PIDControl/PIDController.cpp"
 				    "Memory/Memory.cpp"
+					"EspNow/espnow.cpp"
 				    "main.cpp")
 set(COMPONENT_ADD_INCLUDEDIRS ". include")
 

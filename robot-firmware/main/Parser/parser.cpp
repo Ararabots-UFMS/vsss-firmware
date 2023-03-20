@@ -48,9 +48,9 @@ void parser_params(uint8_t* received_param){
 
 			#ifdef DEBUG
 				ESP_LOGE("State:", "Set Motor Code L:%d R:%d WHEELSDIRECTION:%d\n",
-					parser_motor_package.speed_l,
-					parser_motor_package.speed_r,
-					parser_motor_package.wheels_direction
+					(int) parser_motor_package.speed_l,
+					(int) parser_motor_package.speed_r,
+					(int) parser_motor_package.wheels_direction
 				);
 			#endif
 
@@ -70,8 +70,8 @@ void parser_params(uint8_t* received_param){
 
 			#ifdef DEBUG
 				ESP_LOGE("State:", "SET_ANGLE_CORRECTION_SPEED ang: %d em sp:%d %s\n", 
-					parser_motor_package.theta,
-					parser_motor_package.speed_r,
+					(int) parser_motor_package.theta,
+					(int) parser_motor_package.speed_r,
 					angle[parser_motor_package.wheels_direction]
 				);
 			#endif
@@ -102,7 +102,7 @@ void parser_params(uint8_t* received_param){
 			break;
 		default:
 			// tratamento de exceção
-			ESP_LOGE("PARSER ERROR", "Op_Code:%d Arguments:%d", op_code, operation_arguments);
+			ESP_LOGE("PARSER ERROR", "Op_Code:%d Arguments:%d", (int) op_code, (int) operation_arguments);
 			break;
 	}
 }

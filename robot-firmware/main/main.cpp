@@ -7,7 +7,7 @@
 #include "esp_timer.h"
 #include "time.h"
 #include "sys/time.h"
-#include "driver/mcpwm.h"
+#include "driver/mcpwm_prelude.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -15,7 +15,13 @@
 #include <math.h>
 
 #include "PIDController.h"
-#include "bluetooth.h"
+
+#if CONFIG_BT_ENABLED
+  #include "bluetooth_ble.h"
+#else
+  #include "espnow.h"
+#endif
+
 #include "Motors.h"
 #include "Voltimetro.h"
 #include "definitions.h"
@@ -234,7 +240,7 @@ void voltimetro(void * pvParamters){
     Voltimetro voltimetro(R1,R2);
 
     /* Select the GPIO to be used */
-    gpio_pad_select_gpio(SPEAKER_PIN);
+    esp_rom_gpio_pad_select_gpio(SPEAKER_PIN);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(SPEAKER_PIN, GPIO_MODE_OUTPUT);
 
@@ -274,8 +280,15 @@ void app_main()
       ret = nvs_flash_init();
   }
   ESP_ERROR_CHECK( ret );
+  
+  #if CONFIG_BT_ENABLED
+    setup_bluetooth();
+  #else
+    setup_esp_now();
+  #endif
 
-  setup_bluetooth();
+
+
   pid_controller.load_params();
 
   // Waiting thing to initialize

@@ -8,12 +8,14 @@
 #include "driver/gpio.h"
 
 // Should debug?
+#if CONFIG_DEBUG_MODE
 #define DEBUG
+#endif
 
 // Robot name and tag for debug
-#define SPP_TAG			"ROBOT_NAME"
+#define SPP_TAG			"ROBOT_TESTER"
 #define SPP_SERVER_NAME	"SPP_SERVER"
-#define DEVICE_NAME		"ROBOT_NAME"
+#define DEVICE_NAME		"ROBOT_TESTER"
 
 // PARSER OPCODES
 #define SET_MOTOR_CODE 				0 // 0000 0000

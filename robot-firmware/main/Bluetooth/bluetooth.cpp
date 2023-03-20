@@ -75,23 +75,23 @@ void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
 
 
             } else {
-                ESP_LOGE(SPP_TAG, "authentication failed, status:%d", param->auth_cmpl.stat);
+                ESP_LOGE(SPP_TAG, "authentication failed, status:%d", (int) param->auth_cmpl.stat);
             }
             break;
         }
         case ESP_BT_GAP_CFM_REQ_EVT:
-            ESP_LOGI(SPP_TAG, "ESP_BT_GAP_CFM_REQ_EVT Please compare the numeric value: %d", param->cfm_req.num_val);
+            ESP_LOGI(SPP_TAG, "ESP_BT_GAP_CFM_REQ_EVT Please compare the numeric value: %d", (int) param->cfm_req.num_val);
             esp_bt_gap_ssp_confirm_reply(param->cfm_req.bda, true);
             break;
         default: {
-            ESP_LOGI(SPP_TAG, "event: %d", event);
+            ESP_LOGI(SPP_TAG, "event: %d", (int) event);
             break;
         }
     }
     return;
 }
 
-void setup_bluetooth(){
+void old_setup_bluetooth(){
   xSemaphoreGive(motorPackageSemaphore);
 	esp_err_t ret;
 
