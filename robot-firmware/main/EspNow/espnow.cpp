@@ -182,7 +182,7 @@ static esp_err_t example_espnow_init(void)
 
     /* Initialize ESPNOW and register sending and receiving callback function. */
     ESP_ERROR_CHECK( esp_now_init() );
-    ESP_ERROR_CHECK( esp_now_register_recv_cb(example_espnow_recv_cb) );
+    ESP_ERROR_CHECK( esp_now_register_recv_cb((esp_now_recv_cb_t)example_espnow_recv_cb) );
 
     #if CONFIG_ESP_WIFI_STA_DISCONNECTED_PM_ENABLE
         ESP_ERROR_CHECK( esp_now_set_wake_window(65535) );
