@@ -1,0 +1,1 @@
+sudo docker run --rm --device=/dev/ttyUSB0 -v $PWD:/project -w /project -u $UID -e HOME=/tmp -it espressif/idf
