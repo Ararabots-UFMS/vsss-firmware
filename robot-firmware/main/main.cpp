@@ -26,7 +26,7 @@
 #include "Voltimetro.h"
 #include "definitions.h"
 #include "Utils.h"
-#include <gyro.h>
+// #include <gyro.h>
 
 #define PIDCONTROL 0
 #define PI         3.14159265359
@@ -77,21 +77,21 @@ void writeMotorPackage(motorPackage *p)
   xSemaphoreGive(motorPackageSemaphore);
 }
 
-void gyro_task(void*)
-{
-  xSemaphoreGive(yawSemaphore);
-  motorPackage myPackage;
-  float myYaw;
-  auto gyro = Gyro();
+// void gyro_task(void*)
+// {
+//   xSemaphoreGive(yawSemaphore);
+//   motorPackage myPackage;
+//   float myYaw;
+//   auto gyro = Gyro();
 
-  while(1)
-  {
-    gyro.update_yaw(&myYaw);
-    writeYawFromGyro(&myYaw);
-    readMotorPackage(&myPackage);
-    if(myPackage.control_type == PIDCONTROL) xTaskNotifyGive(motorTaskHandler);
-  }
-}
+//   while(1)
+//   {
+//     gyro.update_yaw(&myYaw);
+//     writeYawFromGyro(&myYaw);
+//     readMotorPackage(&myPackage);
+//     if(myPackage.control_type == PIDCONTROL) xTaskNotifyGive(motorTaskHandler);
+//   }
+// }
 
 void motor_control_task(void *pvParameter)
 {
